@@ -288,3 +288,42 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
   return(bib)
 }
+
+
+#' Retrieve the park units from a DataStore reference
+#'
+#'@inheritParams upload_file_to_reference
+#'@inheritParams search_references_by_id
+#'
+#' @returns A tibble of park codes and park names.
+#' @export
+#'
+#' @examples
+#' park_units <- get_park_units(reference_id = 2305911)
+#'
+get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+
+  .validate_ref_id(reference_id)
+
+  park_units <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Units") |>
+    httr2::req_perform()
+
+  .validate_resp(park_units)
+
+  park_units <- httr2::resp_body_json(park_units)
+
+  if(length(park_units) == 0) {
+    park_units = paste0("There are no Units associated with the reference ", reference_id, ".")
+  } else {
+    unit_codes <- sapply(park_units, `[[`, "unitCode")
+    unit_names <- QCkit::unit_codes_to_names(unit_codes)$unit_names
+
+    park_units <- data.table::rbindlist(park_units, use.names = TRUE, fill = TRUE) |>
+      dplyr::mutate(unitName = unit_names) |>
+      dplyr::select(unitCode, unitName) |>
+      tibble::as_tibble()
+  }
+
+  return(park_units)
+}
