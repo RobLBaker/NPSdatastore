@@ -539,8 +539,8 @@ set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = T
   # Set values
   nps_internal <- TRUE
   by_for_nps <- dplyr::case_when(by_for_nps ~ 'true',
-                             !by_for_nps ~ 'false',
-                             .default = NA_character_)  # convert by_for_nps to a string for the API
+                                 !by_for_nps ~ 'false',
+                                 .default = NA_character_)  # convert by_for_nps to a string for the API
 
   # Verify that we're modifying the right reference
   if (interactive) {
