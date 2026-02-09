@@ -665,6 +665,12 @@ set_license <- function(reference_id, license_type_id, dev = TRUE, interactive =
 #'
 set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE) {
   .validate_ref_id(reference_id)
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
 
   lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
     httr2::req_url_path_append("Reference", reference_id, "Lifecycle", "Active") |>
@@ -672,7 +678,9 @@ set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE) {
     httr2::req_method("PUT") |>
     httr2::req_perform()
 
-  .validate_resp(lifecycle_info)
+  .validate_resp(lifecycle_info,
+                 nice_msg_500 = "DataStore could not change the reference lifecycle. See below for details.",
+                 details = "exceptionMessage")
 
   lifecycle_info <- get_lifecycle_info(reference_id = reference_id, dev = dev)
 
@@ -694,6 +702,13 @@ set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE) {
 #'
 set_lifecycle_draft <- function(reference_id, dev = TRUE, interactive = TRUE) {
   .validate_ref_id(reference_id)
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
+
 
   lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
     httr2::req_url_path_append("Reference", reference_id, "Lifecycle", "Draft") |>
@@ -701,7 +716,9 @@ set_lifecycle_draft <- function(reference_id, dev = TRUE, interactive = TRUE) {
     httr2::req_method("PUT") |>
     httr2::req_perform()
 
-  .validate_resp(lifecycle_info)
+  .validate_resp(lifecycle_info,
+                 nice_msg_500 = "DataStore could not change the reference lifecycle. See below for details.",
+                 details = "exceptionMessage")
 
   lifecycle_info <- get_lifecycle_info(reference_id = reference_id, dev = dev)
 
