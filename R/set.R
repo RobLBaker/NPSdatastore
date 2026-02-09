@@ -451,10 +451,10 @@ add_external_link <- function(reference_id, url, description, last_verified = fo
   }
 
   links <- list(resourceId = 0,
-                          userSort = 0,
-                          description = description,
-                          uri = url,
-                          lastVerified = last_verified)
+                userSort = 0,
+                description = description,
+                uri = url,
+                lastVerified = last_verified)
 
   added_link <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
     httr2::req_url_path_append("Reference", reference_id, "ExternalLinks") |>
