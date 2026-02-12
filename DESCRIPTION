@@ -24,8 +24,7 @@ Imports:
     magrittr,
     rlang,
     stringr,
-    tibble,
-    QCkit (>= 1.2.1)
+    tibble
 Depends: 
     R (>= 4.1.0)
 LazyData: true

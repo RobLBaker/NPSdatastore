@@ -381,18 +381,27 @@ get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
   park_units <- httr2::resp_body_json(park_units)
 
   if(length(park_units) == 0) {
-    park_units = paste0("There are no Units associated with the reference ", reference_id, ".")
+    cli::cli_inform("There are no park units associated with this reference.")
   } else {
-    unit_codes <- sapply(park_units, `[[`, "unitCode")
-    unit_names <- QCkit::unit_codes_to_names(unit_codes)$unit_names
+    park_units <- paste(sapply(park_units, `[[`, "unitCode"), collapse = ";")
 
-    park_units <- data.table::rbindlist(park_units, use.names = TRUE, fill = TRUE) |>
-      dplyr::mutate(unitName = unit_names) |>
-      dplyr::select(unitCode, unitName) |>
-      tibble::as_tibble()
+    unit_names <- httr2::request("https://irmaservices.nps.gov/Unit/v2/api/") |>
+      httr2::req_url_path_append(park_units)|>
+      httr2::req_headers(format = "json") |>
+      httr2::req_headers(Accept = "application/json") |>
+      httr2::req_perform()
+
+    .validate_resp(unit_names)
+
+    unit_names <- httr2::resp_body_json(unit_names)
+
+    unit_names <- tibble::as_tibble(
+      do.call(rbind, lapply(unit_names, `[`, c("UnitCode", "FullName")))
+    ) |>
+      dplyr::rename(UnitName = FullName)
   }
 
-  return(park_units)
+  return(unit_names)
 }
 
 #' Determine if a reference was created by/for the NPS
