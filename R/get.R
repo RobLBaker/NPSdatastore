@@ -16,6 +16,8 @@
 #' }
 #'
 search_references_by_id <- function(reference_ids, nps_internal = FALSE, dev = FALSE) {
+  .validate_truefalse(nps_internal)
+  .validate_truefalse(dev)
 
   reference_ids <- unique(reference_ids)  # Make sure there aren't duplicate IDs
 
