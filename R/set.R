@@ -107,6 +107,9 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
   .validate_ref_id(ref_id = reference_id, multiple_ok = FALSE)
   .validate_file_path(file_path)
   .validate_retry(retry)
+  .validate_truefalse(is_508)
+  .validate_truefalse(dev)
+  .validate_truefalse(interactive)
 
   # Set values
   nps_internal <- TRUE
@@ -123,13 +126,25 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
                              is_dev = dev)
   }
 
-  # Get a token, which we need for a multi-chunk upload
-  upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
-    httr2::req_url_path_append("Reference", reference_id, "UploadFile", "TokenRequest") |>
-    httr2::req_body_json(list(Name = file_name,
-                              Is508Compliant = is_508),
-                         type = "application/json") |>
-    httr2::req_perform()
+  # Get a token, and retry if unsuccessful (datastore API doesn't always authenticate on first try)
+  n_retries <- retry
+  while (n_retries >= 0) {
+    # Get a token, which we need for a multi-chunk upload
+    upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+      httr2::req_url_path_append("Reference", reference_id, "UploadFile", "TokenRequest") |>
+      httr2::req_body_json(list(Name = file_name,
+                                Is508Compliant = is_508),
+                           type = "application/json") |>
+      httr2::req_perform()
+
+    if (!httr2::resp_is_error(upload_token)) {
+      # If upload is successful, don't retry
+      n_retries <- -1
+    } else {
+      # Decrement retries remaining
+      n_retries <- n_retries - 1
+    }
+  }
 
   .validate_resp(upload_token,
                  nice_msg_400 = "Could not retrieve upload token. This usually happens if you don't have permissions to edit the reference or if you are not connected to the DOI/NPS network."
