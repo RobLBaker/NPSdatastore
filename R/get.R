@@ -144,6 +144,53 @@ get_reference_types <- function(dev = FALSE) {
   return(ref_types)
 }
 
+#' Get a list of valid contact types
+#'
+#' @inheritParams search_references_by_id
+#' @param reference_type Optional. A valid reference type, as found in the `code` column returned by `get_reference_types()`. If omitted, will return contact types for every reference type.
+#'
+#' @returns A tibble with columns for reference code, key, label, and description
+#' @export
+#'
+#' @examples
+#' valid_contact_types <- get_contact_types()
+#'
+get_contact_types <- function(reference_type, dev = FALSE) {
+
+  # Get the full list of reference types
+  ref_types <- get_reference_types(dev = dev)$code
+  ref_types <- ref_types[ref_types != "Movie/Video"]  # Movie/Video ref type breaks the API call because of the slash; filter it out for now until DataStore team fixes the bug
+
+  # Validate input
+  if (!missing(reference_type)) {
+    match.arg(reference_type, ref_types)
+  } else {
+    reference_type <- ref_types
+  }
+
+  contact_types <- lapply(reference_type, function(ref_code) {
+    contact_req <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+      httr2::req_url_path_append("FixedList", ref_code, "Contacts") |>
+      httr2::req_perform()
+
+    .validate_resp(contact_req,
+                   nice_msg_400 = glue::glue("Could not retrieve contact types for {ref_code}. Check that it is a valid reference code."),
+                   details = "message")
+
+    contacts <- httr2::resp_body_json(contact_req) |>
+      dplyr::bind_rows() |>
+      dplyr::mutate(reference_code = ref_code) |>
+      dplyr::relocate(reference_code)
+
+    return(contacts)
+  })
+
+  contact_types <- dplyr::bind_rows(contact_types) |>
+    dplyr::arrange(reference_code, key)
+
+  return(contact_types)
+}
+
 #' Get a list of valid values for date precision
 #'
 #' @inheritParams search_references_by_id
@@ -355,6 +402,19 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
   bib <- httr2::resp_body_json(bib)
   names(bib) <- stringr::str_replace(names(bib), pattern = "^abstract$", "description")
 
+  # Contacts come back as nested lists; convert them to a dataframe for simplicity
+  if (!is.null(bib$contacts)) {
+    bib$contacts <- lapply(bib$contacts, function(contact) {
+      df <- dplyr::bind_rows(contact$contacts)
+      df$index <- contact$index
+      df$contactType <- contact$contactType
+      return(df)
+    }) |>
+      dplyr::bind_rows() |>
+      dplyr::rename(contactTypeKey = index) |>
+      dplyr::relocate(index, contactType)
+  }
+
   return(bib)
 }
 
@@ -445,4 +505,4 @@ get_lifecycle_info <- function(reference_id, dev = FALSE) {
   lifecycle_info <- httr2::resp_body_json(lifecycle_info)
 
   return(lifecycle_info)
-  }
+}

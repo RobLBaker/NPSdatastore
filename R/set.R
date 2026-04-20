@@ -579,6 +579,104 @@ set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = T
   invisible(bib)
 }
 
+#' Set contact(s) for a reference
+#'
+#' Under the hood, DataStore references have up to three "contact" lists, which map to authors, creators, contacts, etc. depending on the reference type. Each contact list can contain multiple individuals or organizations.
+#'
+#' This function is meant to be called by reference-type-specific wrapper functions, which are more user-friendly. It's best to use those instead.
+#'
+#' When modifying existing contacts for a reference, it's best to retrieve the contacts list using [get_bibliography()] and modify as needed.
+#'
+#' @param contacts A dataframe with the following columns:
+#'  * `contactTypeKey`: Required. The key corresponding to the contact type for this reference. Use [get_contact_types()] to look up the appropriate key for a given reference type.
+#'  * `contactType`: Optional. This column is ignored, but allowed for code clarity and for compatibility with contacts table returned by [get_bibliography()]
+#'  * `primaryName`: Required. Last name/family name. Also used for the name of an organization, corporation, or other entity.
+#'  * `firstName`: First name/given name. Leave blank for organizations/corporations.
+#'  * `middleName`: Middle name or middle initial. Leave blank for organizations/corporations.
+#'  * `affiliation`: Employer or organization the contact belonged to when they were involved in the project
+#'  * `orcid`: 16-digit unique persistent identifier for individuals engaging in research, scholarship, and innovation. If you're a contact on a DataStore reference, you should probably have an [ORCID](https://orcid.org)! You can omit this column or set it to NA if not applicable.
+#'  * `isCorporate`: Required. Set to TRUE if contact is an organization/corporation. Otherwise set to FALSE.
+#'
+#'  Note that in DataStore, the lists for contact type keys 1, 2, and 3 each map to a specific _type_ of contact, which depends on the reference type. Not every reference uses all three contact fields. Use [get_contact_types()] if you're not sure what each contact field corresponds to.
+#' @inheritParams upload_file_to_reference
+#'
+#' @returns A list representing the full updated bibliography.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE)
+#' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE, dev = FALSE)
+#' }
+set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE) {
+
+  # Validate arguments
+  .validate_ref_id(reference_id)
+  .validate_truefalse(dev)
+  .validate_truefalse(interactive)
+
+  # Validate contacts table
+  # Are required columns present?
+  req_cols <- c("contactTypeKey", "primaryName", "isCorporate")
+  if (!all((req_cols %in% names(contacts)))) {
+    cli::cli_abort("`contacts` dataframe must contain the following columns: {req_cols}. See `?set_contacts` for details.")
+  }
+  # make sure contactTypeKey and primaryName are present and valid
+  if (any(is.na(contacts$contactTypeKey))) {
+    cli::cli_abort("`contactTypeKey` is required for every contact.")
+  }
+  if (!all(contacts$contactTypeKey %in% c(1, 2, 3))) {
+    cli::cli_abort("`contactTypeKey` must be 1, 2, or 3.")
+  }
+  if (any(is.na(contacts$primaryName))) {
+    cli::cli_abort("`primaryName` is required for every contact.")
+  }
+
+  # Validate that reference is in draft mode, otherwise can't alter bibliography
+  .validate_lifecycle(ref_id = reference_id, expected_lifecycle = "Draft", is_dev = dev)
+
+  # Set values
+  nps_internal <- TRUE
+
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
+
+
+  # Select necessary columns and add (empty) optional columns that may be missing
+  contact_cols <- c("contactTypeKey", "title", "primaryName", "firstName", "middleName", "suffix", "affiliation", "isCorporate", "orcid")
+  contacts <- dplyr::select(contacts, dplyr::any_of(contact_cols))
+  missing_cols <- contact_cols[!(contact_cols %in% names(contacts))]
+  contacts[missing_cols] <- NA_character_
+
+  # Turn contacts dataframe into a properly formatted list
+  body <- sapply(unique(contacts$contactTypeKey), function(key) {
+    contacts_by_type <- contacts |>
+      dplyr::filter(contactTypeKey == key) |>
+      dplyr::select(contact_cols[2:length(contact_cols)]) |>
+      dplyr::rename(ORCID = orcid)
+    contacts_by_type <- purrr::transpose(contacts_by_type)
+    return(contacts_by_type)
+  }, simplify = TRUE, USE.NAMES = TRUE)
+
+  names(body) <- paste0("contacts", unique(contacts$contactTypeKey))
+
+  bib <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
+    httr2::req_body_json(body) |>
+    httr2::req_method("PATCH") |>  # PATCH ensures that only the specified field (isAgencyOriginated) gets modified, not the whole bibliography
+    httr2::req_perform()
+
+  .validate_resp(bib)
+
+  bib <- httr2::resp_body_json(bib)
+
+  invisible(bib)
+}
+
 #' Add DataStore reference(s) to a Project reference
 #'
 #' @param project_id The reference ID of the Project
