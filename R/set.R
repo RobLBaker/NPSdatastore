@@ -435,6 +435,52 @@ add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE)
   return(added_keywords)
 }
 
+#' Add content units to a DataStore reference
+#'
+#' @param parks A character vector of park/unit codes
+#' @inheritParams upload_file_to_reference
+#'
+#' @returns A character vector of all unit codes for the reference
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' my_content_units <- c("LAKE", "DEVA", "MOJA", "JOTR")
+#' all_content_units <- add_content_units(reference_id = 00000, parks = my_content_units, dev = TRUE)
+#' }
+#'
+add_content_units <- function(reference_id, parks, include_linked_units = FALSE, add_bounding_box = TRUE, dev = TRUE, interactive = TRUE) {
+  .validate_ref_id(reference_id)
+
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
+
+  parks <- lapply(parks, function(park) {
+    return(list(unitCode = park,
+                andLinkedUnits = include_linked_units,
+                andBoundingBox = add_bounding_box))
+  })
+
+  # Add the parks
+  added_parks <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Units") |>
+    httr2::req_body_json(parks) |>
+    httr2::req_method("POST") |>
+    httr2::req_perform()
+
+  .validate_resp(added_parks, details = "exceptionMessage")
+
+  all_parks <- httr2::resp_body_json(added_parks)
+  all_parks <- sapply(all_parks, function(park){
+    return(park$unitCode)
+  })
+
+  return(all_parks)
+}
 
 #' Add external links to a DataStore reference
 #'

@@ -256,8 +256,8 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #' @keywords internal
 #'
 .validate_ref_id <- function(ref_id, multiple_ok = FALSE,
-                 arg = rlang::caller_arg(ref_id),
-                 call = rlang::caller_env()) {
+                             arg = rlang::caller_arg(ref_id),
+                             call = rlang::caller_env()) {
   # Enforce single reference ID
   if (!multiple_ok) {
     if (length(ref_id) > 1) {
@@ -319,8 +319,8 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #' @keywords internal
 #'
 .validate_truefalse <- function(bool,
-                             arg = rlang::caller_arg(bool),
-                             call = rlang::caller_env()) {
+                                arg = rlang::caller_arg(bool),
+                                call = rlang::caller_env()) {
 
   # Enforce a TRUE/FALSE value
   if (!is.logical(bool) || is.na(bool)) {
@@ -380,9 +380,15 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
     names(nice_msg) <- rep("i", length(nice_msg))
 
     if(!missing(details)) {
-      resp_body <- httr2::resp_body_json(resp)
-      detail_msg <- glue::glue("DETAILS: {resp_body[[details]]}")
-      nice_msg <- c(nice_msg, "i" = detail_msg)
+      tryCatch({
+        resp_body <- httr2::resp_body_json(resp)
+        detail_msg <- glue::glue("DETAILS: {resp_body[[details]]}")
+        nice_msg <- c(nice_msg, "i" = detail_msg)
+      },
+      error = function(e) {
+        detail_msg <- glue::glue("DETAILS: Not available")
+        nice_msg <- c(nice_msg, "i" = detail_msg)
+      })
     }
 
     http_err <- glue::glue("HTTP {status_num}: {httr2::resp_status_desc(resp)}")

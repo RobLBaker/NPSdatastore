@@ -2,6 +2,7 @@
 
 export("%>%")
 export(active_directory_lookup)
+export(add_content_units)
 export(add_external_link)
 export(add_keywords)
 export(add_reference_owners)
