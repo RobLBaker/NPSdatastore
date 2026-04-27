@@ -11,16 +11,17 @@ set_contacts(reference_id, contacts, dev = TRUE, interactive = TRUE)
 
 \item{contacts}{A dataframe with the following columns:
 \itemize{
-\item \code{contactTypeKey}: The key corresponding to the contact type for this reference. Use \code{\link[=get_contact_types]{get_contact_types()}} to look up the appropriate key for a given reference type.
-\item \code{contactType}: Optional. Not used, but allowed for clarity and compatibility with contacts table returned by \code{\link[=get_bibliography]{get_bibliography()}}
-\item \code{primaryName}: Last name/family name. Also used for the name of an organization, corporation, or other entity.
+\item \code{contactTypeKey}: Required. The key corresponding to the contact type for this reference. Use \code{\link[=get_contact_types]{get_contact_types()}} to look up the appropriate key for a given reference type.
+\item \code{contactType}: Optional. This column is ignored, but allowed for code clarity and for compatibility with contacts table returned by \code{\link[=get_bibliography]{get_bibliography()}}
+\item \code{primaryName}: Required. Last name/family name. Also used for the name of an organization, corporation, or other entity.
 \item \code{firstName}: First name/given name. Leave blank for organizations/corporations.
 \item \code{middleName}: Middle name or middle initial. Leave blank for organizations/corporations.
-\item \code{affiliation}: Employer or organization the contact belonged to when they were involved in the project.
-\item \code{orcid}: 16-digit unique persistent identifier for individuals engaging in research, scholarship, and innovation. If you're a contact on a DataStore reference, you should probably have an \href{https://orcid.org}{ORCID}!
+\item \code{affiliation}: Employer or organization the contact belonged to when they were involved in the project
+\item \code{orcid}: 16-digit unique persistent identifier for individuals engaging in research, scholarship, and innovation. If you're a contact on a DataStore reference, you should probably have an \href{https://orcid.org}{ORCID}! You can omit this column or set it to NA if not applicable.
+\item \code{isCorporate}: Required. Set to TRUE if contact is an organization/corporation. Otherwise set to FALSE.
 }
 
-Note that in DataStore, the fields for contacts 1, 2, and 3 each map to a specific \emph{type} of contact, which depends on the reference type. Not every reference uses all three contact fields. Use \code{\link[=get_contact_types]{get_contact_types()}} if you're not sure what each contact field corresponds to.}
+Note that in DataStore, the lists for contact type keys 1, 2, and 3 each map to a specific \emph{type} of contact, which depends on the reference type. Not every reference uses all three contact fields. Use \code{\link[=get_contact_types]{get_contact_types()}} if you're not sure what each contact field corresponds to.}
 
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
 
@@ -30,8 +31,11 @@ Note that in DataStore, the fields for contacts 1, 2, and 3 each map to a specif
 A list representing the full updated bibliography.
 }
 \description{
-Under the hood, DataStore references have up to three "contact" fields, which map to author, creator, contact, etc. depending on the reference type. Each contact field can contain multiple individuals or organizations.
+Under the hood, DataStore references have up to three "contact" lists, which map to authors, creators, contacts, etc. depending on the reference type. Each contact list can contain multiple individuals or organizations.
+}
+\details{
 This function is meant to be called by reference-type-specific wrapper functions, which are more user-friendly. It's best to use those instead.
+
 When modifying existing contacts for a reference, it's best to retrieve the contacts list using \code{\link[=get_bibliography]{get_bibliography()}} and modify as needed.
 }
 \examples{
