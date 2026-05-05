@@ -118,7 +118,9 @@ globalVariables(c("public_refs",
   request <- httr2::request(base_url)
 
   if (is_secure) {
-    request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::")
+    request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
+                                  verbose = FALSE, http_version = 0) |>
+      httr2::req_retry(max_tries = 3)
   }
 
   if (suppress_errors) {
