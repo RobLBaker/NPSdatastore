@@ -119,8 +119,10 @@ globalVariables(c("public_refs",
 
   if (is_secure) {
     request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
-                                  verbose = FALSE, http_version = 0) |>
-      httr2::req_retry(max_tries = 3)
+                                  verbose = FALSE,
+                                  http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value,
+                                  fresh_connect = FALSE) |>
+      httr2::req_retry(max_tries = 3, retry_on_failure = TRUE)
   }
 
   if (suppress_errors) {

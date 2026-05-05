@@ -16,6 +16,7 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     cli,
+    curl,
     data.table,
     dplyr,
     glue,
@@ -31,5 +32,5 @@ LazyData: true
 VignetteBuilder: knitr
 URL: https://nationalparkservice.github.io/NPSdatastore/, https://github.com/nationalparkservice/NPSdatastore
 BugReports: https://github.com/nationalparkservice/NPSdatastore/issues
-Remotes:  
+Remotes: 
     nationalparkservice/QCkit
