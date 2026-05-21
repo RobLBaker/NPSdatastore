@@ -698,6 +698,9 @@ set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE)
   missing_cols <- contact_cols[!(contact_cols %in% names(contacts))]
   contacts[missing_cols] <- NA_character_
 
+  # Turn empty strings into NA
+  contacts <- dplyr::mutate(contacts, dplyr::across(dplyr::where(is.character), ~dplyr::na_if(., "")))
+
   # Turn contacts dataframe into a properly formatted list
   body <- sapply(unique(contacts$contactTypeKey), function(key) {
     contacts_by_type <- contacts |>
@@ -706,7 +709,7 @@ set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE)
       dplyr::rename(ORCID = orcid)
     contacts_by_type <- purrr::transpose(contacts_by_type)
     return(contacts_by_type)
-  }, simplify = TRUE, USE.NAMES = TRUE)
+  }, simplify = FALSE, USE.NAMES = TRUE)
 
   names(body) <- paste0("contacts", unique(contacts$contactTypeKey))
 
