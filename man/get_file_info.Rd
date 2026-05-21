@@ -22,7 +22,9 @@ A tibble with columns userSort, resourceId, lastUpdate, description, fileName, f
 Retrieve information about files associated with a DataStore reference
 }
 \examples{
+\dontrun{
 all_files <- get_file_info(reference_id = 652358)
 specific_file <- get_file_info(reference_id = 2305163, file_id = 706913)
+}
 
 }

@@ -16,6 +16,8 @@ A tibble with columns for date precision code and label
 Get a list of valid values for date precision
 }
 \examples{
+\dontrun{
 valid_precisions <- get_date_precision()
+}
 
 }

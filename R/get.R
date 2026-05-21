@@ -105,7 +105,9 @@ search_references_by_id_basic <- function(reference_ids, nps_internal = FALSE, d
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' valid_ref_types <- get_reference_types()
+#' }
 #'
 get_reference_types <- function(dev = FALSE) {
   # Get the full list of reference types
@@ -153,7 +155,9 @@ get_reference_types <- function(dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' valid_contact_types <- get_contact_types()
+#' }
 #'
 get_contact_types <- function(reference_type, dev = FALSE) {
 
@@ -199,7 +203,9 @@ get_contact_types <- function(reference_type, dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' valid_precisions <- get_date_precision()
+#' }
 #'
 get_date_precision <- function(dev = FALSE) {
   # Get the full list of date precision keywords
@@ -228,7 +234,9 @@ get_date_precision <- function(dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' owners <- get_reference_owners(reference_id = 652358)
+#' }
 #'
 get_reference_owners <- function(reference_id, dev = FALSE) {
 
@@ -286,7 +294,9 @@ get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' links <- get_external_links(reference_id = 652358)
+#' }
 #'
 get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
@@ -323,8 +333,10 @@ get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) 
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' all_files <- get_file_info(reference_id = 652358)
 #' specific_file <- get_file_info(reference_id = 2305163, file_id = 706913)
+#' }
 #'
 get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FALSE) {
 
@@ -414,7 +426,9 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' park_units <- get_park_units(reference_id = 2305911)
+#' }
 #'
 get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 

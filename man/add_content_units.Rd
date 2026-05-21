@@ -18,6 +18,10 @@ add_content_units(
 
 \item{parks}{A character vector of park/unit codes}
 
+\item{include_linked_units}{For unit codes that contain other units (e.g. an I&M network or region), should the contained units also be added?}
+
+\item{add_bounding_box}{Add the unit's bounding box to the reference's geographic coverage?}
+
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
 
 \item{interactive}{Logical. Prompt for user confirmation before uploading?}

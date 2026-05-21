@@ -64,7 +64,12 @@ globalVariables(c("public_refs",
                   "is508Compliant",
                   "fileSize_kb",
                   "extensionAttribute2",
-                  "orcid"))
+                  "orcid",
+                  "index",
+                  "contactTypeKey",
+                  "contactType",
+                  "reference_code",
+                  "FullName"))
 
 
 #' Get the right base URL for the DataStore API
@@ -121,8 +126,8 @@ globalVariables(c("public_refs",
     request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
                                   verbose = FALSE,
                                   http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value,
-                                  fresh_connect = FALSE) |>
-      httr2::req_retry(max_tries = 3, retry_on_failure = TRUE)
+                                  fresh_connect = TRUE) |>
+      httr2::req_retry(max_tries = 6, retry_on_failure = TRUE)
   }
 
   if (suppress_errors) {

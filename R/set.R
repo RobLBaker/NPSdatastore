@@ -439,6 +439,8 @@ add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE)
 #'
 #' @param parks A character vector of park/unit codes
 #' @inheritParams upload_file_to_reference
+#' @param include_linked_units For unit codes that contain other units (e.g. an I&M network or region), should the contained units also be added?
+#' @param add_bounding_box Add the unit's bounding box to the reference's geographic coverage?
 #'
 #' @returns A character vector of all unit codes for the reference
 #' @export

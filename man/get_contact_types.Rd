@@ -18,6 +18,8 @@ A tibble with columns for reference code, key, label, and description
 Get a list of valid contact types
 }
 \examples{
+\dontrun{
 valid_contact_types <- get_contact_types()
+}
 
 }

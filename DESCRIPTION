@@ -23,6 +23,7 @@ Imports:
     httr2,
     lubridate,
     magrittr,
+    purrr,
     rlang,
     stringr,
     tibble
