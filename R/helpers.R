@@ -171,6 +171,26 @@ globalVariables(c("public_refs",
   return(response)
 }
 
+.tidy_bibliography <- function(bib_resp) {
+  bib <- httr2::resp_body_json(bib_resp)
+  names(bib) <- stringr::str_replace(names(bib), pattern = "^abstract$", "description")
+
+  # Contacts come back as nested lists; convert them to a dataframe for simplicity
+  if (!is.null(bib$contacts)) {
+    bib$contacts <- lapply(bib$contacts, function(contact) {
+      df <- dplyr::bind_rows(contact$contacts)
+      df$index <- contact$index
+      df$contactType <- contact$contactType
+      return(df)
+    }) |>
+      dplyr::bind_rows() |>
+      dplyr::rename(contactTypeKey = index) |>
+      dplyr::relocate(contactTypeKey, contactType)
+  }
+
+  return(bib)
+}
+
 #' Convert lists in a reference profile to vectors
 #'
 #' Use for elements like keywords and subjects that are returned as lists of single-element lists

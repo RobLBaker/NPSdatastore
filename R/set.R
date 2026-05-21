@@ -718,9 +718,9 @@ set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE)
 
   .validate_resp(bib)
 
-  bib <- httr2::resp_body_json(bib)
+  bib <- .tidy_bibliography(bib)
 
-  invisible(bib)
+  invisible(bib$contacts)
 }
 
 #' Add DataStore reference(s) to a Project reference

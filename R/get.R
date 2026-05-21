@@ -399,21 +399,7 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
   .validate_resp(bib)
 
-  bib <- httr2::resp_body_json(bib)
-  names(bib) <- stringr::str_replace(names(bib), pattern = "^abstract$", "description")
-
-  # Contacts come back as nested lists; convert them to a dataframe for simplicity
-  if (!is.null(bib$contacts)) {
-    bib$contacts <- lapply(bib$contacts, function(contact) {
-      df <- dplyr::bind_rows(contact$contacts)
-      df$index <- contact$index
-      df$contactType <- contact$contactType
-      return(df)
-    }) |>
-      dplyr::bind_rows() |>
-      dplyr::rename(contactTypeKey = index) |>
-      dplyr::relocate(index, contactType)
-  }
+  bib <- .tidy_bibliography(bib)
 
   return(bib)
 }
