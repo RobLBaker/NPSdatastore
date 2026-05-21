@@ -356,6 +356,59 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
   return(bib)
 }
 
+
+#' Retrieve the park units from a DataStore reference
+#'
+#'@inheritParams upload_file_to_reference
+#'@inheritParams search_references_by_id
+#'
+#' @returns A tibble of park codes and park names.
+#' @export
+#'
+#' @examples
+#' park_units <- get_park_units(reference_id = 2305911)
+#'
+get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+
+  .validate_ref_id(reference_id)
+
+  park_units <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Units") |>
+    httr2::req_perform()
+
+  .validate_resp(park_units)
+
+  park_units <- httr2::resp_body_json(park_units)
+
+  if(length(park_units) == 0) {
+    cli::cli_inform("There are no park units associated with this reference.")
+  } else {
+    park_units <- paste(sapply(park_units, `[[`, "unitCode"), collapse = ";")
+
+    unit_names <- httr2::request("https://irmaservices.nps.gov/Unit/v2/api/") |>
+      httr2::req_url_path_append(park_units)|>
+      httr2::req_headers(format = "json") |>
+      httr2::req_headers(Accept = "application/json") |>
+      httr2::req_perform()
+
+    .validate_resp(unit_names)
+
+    unit_names <- httr2::resp_body_json(unit_names)
+
+    unit_names <- tibble::as_tibble(
+      do.call(rbind,
+              lapply(unit_names, function(x) {
+                data.frame(
+                  UnitCode = as.character(x[["UnitCode"]])[1],
+                  UnitName = as.character(x[["FullName"]])[1],
+                  stringsAsFactors = FALSE)
+              }))
+    )
+  }
+
+  return(unit_names)
+}
+
 #' Determine if a reference was created by/for the NPS
 #'
 #' @inheritParams get_bibliography
@@ -404,4 +457,4 @@ get_lifecycle_info <- function(reference_id, dev = FALSE) {
   lifecycle_info <- httr2::resp_body_json(lifecycle_info)
 
   return(lifecycle_info)
-}
+  }

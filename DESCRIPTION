@@ -26,8 +26,10 @@ Imports:
     stringr,
     tibble
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1.0)
 LazyData: true
 VignetteBuilder: knitr
 URL: https://nationalparkservice.github.io/NPSdatastore/, https://github.com/nationalparkservice/NPSdatastore
 BugReports: https://github.com/nationalparkservice/NPSdatastore/issues
+Remotes:  
+    nationalparkservice/QCkit

@@ -343,27 +343,46 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
   }
 }
 
+#' Check HTTP response and throw a helpful error if needed
+#'
+#' @param resp HTTP response as returned by `httr2::req_perform()`
+#' @param nice_msg_400 Optional. Custom message for errors in the 400 range
+#' @param nice_msg_500 Optional. Custom message for errors in the 500 range
+#' @param details Optional. Name of JSON field in response body that contains more info about the error
+#' @param call Caller environment
+#'
+#' @keywords internal
+#'
 .validate_resp <- function(resp,
                            nice_msg_400,
                            nice_msg_500,
+                           details,
                            call = rlang::caller_env()) {
 
   if (httr2::resp_is_error(resp)) {
-    if (missing(nice_msg_400)) {
-      nice_msg_400 <- c("i" = "There's a problem with your API request. Check reference IDs, search terms, etc. for typos.",
-                        "i" = "If you are an NPS user attempting to edit a reference or access non-public data, verify that you are on the NPS network, have the appropriate permissions, and have set {.arg nps_internal = TRUE} if applicable.",
-                        "i" = "Verify that {.arg dev} is set correctly.")
-    }
-    if (missing(nice_msg_500)) {
-      nice_msg_500 <- c("i" = "Something seems to have gone wrong on DataStore's end. For troubleshooting help, take a screenshot of this error and contact the package maintainer or the DataStore helpdesk.")
-    }
 
     status_num <- httr2::resp_status(resp)
 
-    if (floor(status_num/100) == 5) {
+    if (floor(status_num/100) == 5) {  # error in 500 range (likely server-side)
+      if (missing(nice_msg_500)) {
+        nice_msg_500 <- "Something seems to have gone wrong on DataStore's end. For troubleshooting help, take a screenshot of this error and contact the package maintainer or the DataStore helpdesk."
+      }
       nice_msg <- nice_msg_500
-    } else if (floor(status_num/100) == 4) {
+    } else if (floor(status_num/100) == 4) {  # error in 400 range (likely client-side)
+      if (missing(nice_msg_400)) {
+        nice_msg_400 <- c("There's a problem with your API request. Check reference IDs, search terms, etc. for typos.",
+                          "If you are an NPS user attempting to edit a reference or access non-public data, verify that you are on the NPS network, have the appropriate permissions, and have set {.arg nps_internal = TRUE} if applicable.",
+                          "Verify that {.arg dev} is set correctly.")
+      }
       nice_msg <- nice_msg_400
+    }
+
+    names(nice_msg) <- rep("i", length(nice_msg))
+
+    if(!missing(details)) {
+      resp_body <- httr2::resp_body_json(resp)
+      detail_msg <- glue::glue("DETAILS: {resp_body[[details]]}")
+      nice_msg <- c(nice_msg, "i" = detail_msg)
     }
 
     http_err <- glue::glue("HTTP {status_num}: {httr2::resp_status_desc(resp)}")
