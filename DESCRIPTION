@@ -4,7 +4,7 @@ Version: 0.0.0.9004
 Authors@R: 
     person(c("Sarah", "E."), "Wright", email = "sarah_wright@nps.gov", role = c("aut", "cre"), comment = c(ORCID = "0009-0004-5060-2189"))
 Description: Interact with the National Park Service (NPS) DataStore in R. NPS DataStore is the official home of NPS datasets, publications, and more. Use this package to search the contents of DataStore, download files, and publish new content (authorized users only).
-License: MIT + file LICENSE
+License: CC0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
