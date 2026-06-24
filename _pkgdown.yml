@@ -10,8 +10,11 @@ reference:
   - starts_with("search_")
   - starts_with("get_")
   - -get_lifecycle_info
+  - -get_bibliography
 - subtitle: Internal only
-  contents: get_lifecycle_info
+  contents:
+  - get_lifecycle_info
+  - get_bibliography
 - title: Create and Modify References
 - subtitle: Internal only
   desc: |
