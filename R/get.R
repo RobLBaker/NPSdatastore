@@ -458,9 +458,14 @@ get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
     unit_names <- httr2::resp_body_json(unit_names)
 
     unit_names <- tibble::as_tibble(
-      do.call(rbind, lapply(unit_names, `[`, c("UnitCode", "FullName")))
-    ) |>
-      dplyr::rename(UnitName = FullName)
+      do.call(rbind,
+              lapply(unit_names, function(x) {
+                data.frame(
+                  UnitCode = as.character(x[["UnitCode"]])[1],
+                  UnitName = as.character(x[["FullName"]])[1],
+                  stringsAsFactors = FALSE)
+              }))
+    )
   }
 
   return(unit_names)

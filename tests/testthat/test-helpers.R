@@ -34,3 +34,22 @@ test_that("example_ref_ids returns example reference IDs", {
   expect_warning(example_ref_ids(n = 500), "exceeds total number")
 
 })
+
+test_that(".get_ref_profile_url constructs the correct URL", {
+
+  public <- .get_ref_profile_url(public_refs[37], is_dev = FALSE)
+  public_dev <- .get_ref_profile_url(public_refs[5], is_dev = TRUE)
+  secure <- .get_ref_profile_url(internal_refs[22], is_dev = FALSE)
+  secure_dev <- .get_ref_profile_url(internal_refs[9], is_dev = TRUE)
+
+
+  expect_type(public_dev, "character")
+  expect_type(public, "character")
+  expect_type(secure_dev, "character")
+  expect_type(secure, "character")
+
+  expect_equal(substr(public_dev, 1, 52), "https://irmadev.nps.gov/DataStore/Reference/Profile/")
+  expect_equal(substr(public, 1, 49), "https://irma.nps.gov/DataStore/Reference/Profile/")
+  expect_equal(substr(secure_dev, 1, 52), "https://irmadev.nps.gov/DataStore/Reference/Profile/")
+  expect_equal(substr(secure, 1, 49), "https://irma.nps.gov/DataStore/Reference/Profile/")
+})
