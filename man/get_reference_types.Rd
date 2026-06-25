@@ -16,6 +16,8 @@ A tibble with columns for reference code, label, description, and group code
 Get a list of valid reference types
 }
 \examples{
+\dontrun{
 valid_ref_types <- get_reference_types()
+}
 
 }

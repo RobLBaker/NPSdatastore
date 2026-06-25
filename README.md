@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/nationalparkservice/NPSdatastore/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nationalparkservice/NPSdatastore/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/doi-nps/NPSdatastore/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/doi-nps/NPSdatastore/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The NPS DataStore is the official home of National Park Service (NPS)
@@ -44,7 +44,7 @@ You can install the development version of NPSdatastore from
 
 ``` r
 # install.packages("pak")
-pak::pak("nationalparkservice/NPSdatastore")
+pak::pak("doi-nps/NPSdatastore")
 ```
 
 ## Examples
@@ -82,7 +82,7 @@ str(head(reference_info, 2), max.level = 2)
 #>   ..$ lifecycle           : chr "Active"
 #>   ..$ newVersion          : NULL
 #>   ..$ masterId            : NULL
-#>   ..$ bibliography        :List of 21
+#>   ..$ bibliography        :List of 22
 #>   ..$ parent              : NULL
 #>   ..$ series              : NULL
 #>   ..$ filesAndLinks       : NULL
@@ -108,7 +108,7 @@ str(head(reference_info, 2), max.level = 2)
 #>   ..$ lifecycle           : chr "Active"
 #>   ..$ newVersion          : NULL
 #>   ..$ masterId            : NULL
-#>   ..$ bibliography        :List of 21
+#>   ..$ bibliography        :List of 22
 #>   ..$ parent              : NULL
 #>   ..$ series              : NULL
 #>   ..$ filesAndLinks       : NULL
@@ -150,8 +150,7 @@ str(reference_info_basic, strict.width = "cut")
 #>  $ referenceGroupType        : chr [1:3] "Organizational" "Organizational" "D"..
 #>  $ typeName                  : chr [1:3] "Project" "Program" "Geospatial Data"..
 #>  $ isDOI                     : chr [1:3] "False" "False" "False"
-#>  $ newVersion                : logi [1:3] NA NA NA
-#>  $ mostRecentVersion         : logi [1:3] NA NA NA
+#>  $ newVersion                : int [1:3] NA NA 2314463
+#>  $ mostRecentVersion         : int [1:3] NA NA 2317984
 #>  $ productCount              : int [1:3] 0 0 0
-#>  - attr(*, ".internal.selfref")=<externalptr>
 ```

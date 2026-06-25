@@ -18,6 +18,8 @@ A tibble with the username, last name, first name, and email of each reference o
 Only available for NPS users on the internal network.
 }
 \examples{
+\dontrun{
 owners <- get_reference_owners(reference_id = 652358)
+}
 
 }

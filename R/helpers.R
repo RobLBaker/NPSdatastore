@@ -64,7 +64,12 @@ globalVariables(c("public_refs",
                   "is508Compliant",
                   "fileSize_kb",
                   "extensionAttribute2",
-                  "orcid"))
+                  "orcid",
+                  "index",
+                  "contactTypeKey",
+                  "contactType",
+                  "reference_code",
+                  "FullName"))
 
 
 #' Get the right base URL for the DataStore API
@@ -118,7 +123,11 @@ globalVariables(c("public_refs",
   request <- httr2::request(base_url)
 
   if (is_secure) {
-    request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::")
+    request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
+                                  verbose = FALSE,
+                                  http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value,
+                                  fresh_connect = TRUE) |>
+      httr2::req_retry(max_tries = 6, retry_on_failure = TRUE)
   }
 
   if (suppress_errors) {
@@ -165,6 +174,26 @@ globalVariables(c("public_refs",
   names(response) <- ids
 
   return(response)
+}
+
+.tidy_bibliography <- function(bib_resp) {
+  bib <- httr2::resp_body_json(bib_resp)
+  names(bib) <- stringr::str_replace(names(bib), pattern = "^abstract$", "description")
+
+  # Contacts come back as nested lists; convert them to a dataframe for simplicity
+  if (!is.null(bib$contacts)) {
+    bib$contacts <- lapply(bib$contacts, function(contact) {
+      df <- dplyr::bind_rows(contact$contacts)
+      df$index <- contact$index
+      df$contactType <- contact$contactType
+      return(df)
+    }) |>
+      dplyr::bind_rows() |>
+      dplyr::rename(contactTypeKey = index) |>
+      dplyr::relocate(contactTypeKey, contactType)
+  }
+
+  return(bib)
 }
 
 #' Convert lists in a reference profile to vectors
@@ -256,8 +285,8 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #' @keywords internal
 #'
 .validate_ref_id <- function(ref_id, multiple_ok = FALSE,
-                 arg = rlang::caller_arg(ref_id),
-                 call = rlang::caller_env()) {
+                             arg = rlang::caller_arg(ref_id),
+                             call = rlang::caller_env()) {
   # Enforce single reference ID
   if (!multiple_ok) {
     if (length(ref_id) > 1) {
@@ -319,8 +348,8 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #' @keywords internal
 #'
 .validate_truefalse <- function(bool,
-                             arg = rlang::caller_arg(bool),
-                             call = rlang::caller_env()) {
+                                arg = rlang::caller_arg(bool),
+                                call = rlang::caller_env()) {
 
   # Enforce a TRUE/FALSE value
   if (!is.logical(bool) || is.na(bool)) {
@@ -380,9 +409,15 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
     names(nice_msg) <- rep("i", length(nice_msg))
 
     if(!missing(details)) {
-      resp_body <- httr2::resp_body_json(resp)
-      detail_msg <- glue::glue("DETAILS: {resp_body[[details]]}")
-      nice_msg <- c(nice_msg, "i" = detail_msg)
+      tryCatch({
+        resp_body <- httr2::resp_body_json(resp)
+        detail_msg <- glue::glue("DETAILS: {resp_body[[details]]}")
+        nice_msg <- c(nice_msg, "i" = detail_msg)
+      },
+      error = function(e) {
+        detail_msg <- glue::glue("DETAILS: Not available")
+        nice_msg <- c(nice_msg, "i" = detail_msg)
+      })
     }
 
     http_err <- glue::glue("HTTP {status_num}: {httr2::resp_status_desc(resp)}")

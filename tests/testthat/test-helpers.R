@@ -20,8 +20,8 @@ test_that(".datastore_request returns the correct URL and auth info", {
   expect_length(public$options, 0)
   expect_length(public_dev$options, 0)
 
-  expect_equal(secure$options, list(httpauth = 4, userpwd = ":::"))
-  expect_equal(secure_dev$options, list(httpauth = 4, userpwd = ":::"))
+  expect_equal(secure$options, list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
+  expect_equal(secure_dev$options, list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
 
 })
 

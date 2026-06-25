@@ -20,6 +20,8 @@ A tibble of park codes and park names.
 Retrieve the park units from a DataStore reference
 }
 \examples{
+\dontrun{
 park_units <- get_park_units(reference_id = 2305911)
+}
 
 }

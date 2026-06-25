@@ -16,6 +16,8 @@
 #' }
 #'
 search_references_by_id <- function(reference_ids, nps_internal = FALSE, dev = FALSE) {
+  .validate_truefalse(nps_internal)
+  .validate_truefalse(dev)
 
   reference_ids <- unique(reference_ids)  # Make sure there aren't duplicate IDs
 
@@ -103,7 +105,9 @@ search_references_by_id_basic <- function(reference_ids, nps_internal = FALSE, d
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' valid_ref_types <- get_reference_types()
+#' }
 #'
 get_reference_types <- function(dev = FALSE) {
   # Get the full list of reference types
@@ -142,6 +146,55 @@ get_reference_types <- function(dev = FALSE) {
   return(ref_types)
 }
 
+#' Get a list of valid contact types
+#'
+#' @inheritParams search_references_by_id
+#' @param reference_type Optional. A valid reference type, as found in the `code` column returned by `get_reference_types()`. If omitted, will return contact types for every reference type.
+#'
+#' @returns A tibble with columns for reference code, key, label, and description
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' valid_contact_types <- get_contact_types()
+#' }
+#'
+get_contact_types <- function(reference_type, dev = FALSE) {
+
+  # Get the full list of reference types
+  ref_types <- get_reference_types(dev = dev)$code
+  ref_types <- ref_types[ref_types != "Movie/Video"]  # Movie/Video ref type breaks the API call because of the slash; filter it out for now until DataStore team fixes the bug
+
+  # Validate input
+  if (!missing(reference_type)) {
+    match.arg(reference_type, ref_types)
+  } else {
+    reference_type <- ref_types
+  }
+
+  contact_types <- lapply(reference_type, function(ref_code) {
+    contact_req <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+      httr2::req_url_path_append("FixedList", ref_code, "Contacts") |>
+      httr2::req_perform()
+
+    .validate_resp(contact_req,
+                   nice_msg_400 = glue::glue("Could not retrieve contact types for {ref_code}. Check that it is a valid reference code."),
+                   details = "message")
+
+    contacts <- httr2::resp_body_json(contact_req) |>
+      dplyr::bind_rows() |>
+      dplyr::mutate(reference_code = ref_code) |>
+      dplyr::relocate(reference_code)
+
+    return(contacts)
+  })
+
+  contact_types <- dplyr::bind_rows(contact_types) |>
+    dplyr::arrange(reference_code, key)
+
+  return(contact_types)
+}
+
 #' Get a list of valid values for date precision
 #'
 #' @inheritParams search_references_by_id
@@ -150,7 +203,9 @@ get_reference_types <- function(dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' valid_precisions <- get_date_precision()
+#' }
 #'
 get_date_precision <- function(dev = FALSE) {
   # Get the full list of date precision keywords
@@ -179,7 +234,9 @@ get_date_precision <- function(dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' owners <- get_reference_owners(reference_id = 652358)
+#' }
 #'
 get_reference_owners <- function(reference_id, dev = FALSE) {
 
@@ -237,7 +294,9 @@ get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' links <- get_external_links(reference_id = 652358)
+#' }
 #'
 get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
@@ -274,8 +333,10 @@ get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) 
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' all_files <- get_file_info(reference_id = 652358)
 #' specific_file <- get_file_info(reference_id = 2305163, file_id = 706913)
+#' }
 #'
 get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FALSE) {
 
@@ -350,8 +411,7 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
   .validate_resp(bib)
 
-  bib <- httr2::resp_body_json(bib)
-  names(bib) <- stringr::str_replace(names(bib), pattern = "^abstract$", "description")
+  bib <- .tidy_bibliography(bib)
 
   return(bib)
 }
@@ -366,7 +426,9 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' park_units <- get_park_units(reference_id = 2305911)
+#' }
 #'
 get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
@@ -457,4 +519,4 @@ get_lifecycle_info <- function(reference_id, dev = FALSE) {
   lifecycle_info <- httr2::resp_body_json(lifecycle_info)
 
   return(lifecycle_info)
-  }
+}

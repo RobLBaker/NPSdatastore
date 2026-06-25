@@ -20,6 +20,8 @@ A tibble with columns userSort, resourceId, lastUpdate, description, uri, and la
 Retrieve the external links from a DataStore reference
 }
 \examples{
+\dontrun{
 links <- get_external_links(reference_id = 652358)
+}
 
 }

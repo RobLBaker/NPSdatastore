@@ -107,6 +107,9 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
   .validate_ref_id(ref_id = reference_id, multiple_ok = FALSE)
   .validate_file_path(file_path)
   .validate_retry(retry)
+  .validate_truefalse(is_508)
+  .validate_truefalse(dev)
+  .validate_truefalse(interactive)
 
   # Set values
   nps_internal <- TRUE
@@ -123,13 +126,25 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
                              is_dev = dev)
   }
 
-  # Get a token, which we need for a multi-chunk upload
-  upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
-    httr2::req_url_path_append("Reference", reference_id, "UploadFile", "TokenRequest") |>
-    httr2::req_body_json(list(Name = file_name,
-                              Is508Compliant = is_508),
-                         type = "application/json") |>
-    httr2::req_perform()
+  # Get a token, and retry if unsuccessful (datastore API doesn't always authenticate on first try)
+  n_retries <- retry
+  while (n_retries >= 0) {
+    # Get a token, which we need for a multi-chunk upload
+    upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+      httr2::req_url_path_append("Reference", reference_id, "UploadFile", "TokenRequest") |>
+      httr2::req_body_json(list(Name = file_name,
+                                Is508Compliant = is_508),
+                           type = "application/json") |>
+      httr2::req_perform()
+
+    if (!httr2::resp_is_error(upload_token)) {
+      # If upload is successful, don't retry
+      n_retries <- -1
+    } else {
+      # Decrement retries remaining
+      n_retries <- n_retries - 1
+    }
+  }
 
   .validate_resp(upload_token,
                  nice_msg_400 = "Could not retrieve upload token. This usually happens if you don't have permissions to edit the reference or if you are not connected to the DOI/NPS network."
@@ -420,6 +435,54 @@ add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE)
   return(added_keywords)
 }
 
+#' Add content units to a DataStore reference
+#'
+#' @param parks A character vector of park/unit codes
+#' @inheritParams upload_file_to_reference
+#' @param include_linked_units For unit codes that contain other units (e.g. an I&M network or region), should the contained units also be added?
+#' @param add_bounding_box Add the unit's bounding box to the reference's geographic coverage?
+#'
+#' @returns A character vector of all unit codes for the reference
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' my_content_units <- c("LAKE", "DEVA", "MOJA", "JOTR")
+#' all_content_units <- add_content_units(reference_id = 00000, parks = my_content_units, dev = TRUE)
+#' }
+#'
+add_content_units <- function(reference_id, parks, include_linked_units = FALSE, add_bounding_box = TRUE, dev = TRUE, interactive = TRUE) {
+  .validate_ref_id(reference_id)
+
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
+
+  parks <- lapply(parks, function(park) {
+    return(list(unitCode = park,
+                andLinkedUnits = include_linked_units,
+                andBoundingBox = add_bounding_box))
+  })
+
+  # Add the parks
+  added_parks <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Units") |>
+    httr2::req_body_json(parks) |>
+    httr2::req_method("POST") |>
+    httr2::req_perform()
+
+  .validate_resp(added_parks, details = "exceptionMessage")
+
+  all_parks <- httr2::resp_body_json(added_parks)
+  all_parks <- sapply(all_parks, function(park){
+    return(park$unitCode)
+  })
+
+  return(all_parks)
+}
 
 #' Add external links to a DataStore reference
 #'
@@ -562,6 +625,107 @@ set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = T
   bib <- httr2::resp_body_json(bib)
 
   invisible(bib)
+}
+
+#' Set contact(s) for a reference
+#'
+#' Under the hood, DataStore references have up to three "contact" lists, which map to authors, creators, contacts, etc. depending on the reference type. Each contact list can contain multiple individuals or organizations.
+#'
+#' This function is meant to be called by reference-type-specific wrapper functions, which are more user-friendly. It's best to use those instead.
+#'
+#' When modifying existing contacts for a reference, it's best to retrieve the contacts list using [get_bibliography()] and modify as needed.
+#'
+#' @param contacts A dataframe with the following columns:
+#'  * `contactTypeKey`: Required. The key corresponding to the contact type for this reference. Use [get_contact_types()] to look up the appropriate key for a given reference type.
+#'  * `contactType`: Optional. This column is ignored, but allowed for code clarity and for compatibility with contacts table returned by [get_bibliography()]
+#'  * `primaryName`: Required. Last name/family name. Also used for the name of an organization, corporation, or other entity.
+#'  * `firstName`: First name/given name. Leave blank for organizations/corporations.
+#'  * `middleName`: Middle name or middle initial. Leave blank for organizations/corporations.
+#'  * `affiliation`: Employer or organization the contact belonged to when they were involved in the project
+#'  * `orcid`: 16-digit unique persistent identifier for individuals engaging in research, scholarship, and innovation. If you're a contact on a DataStore reference, you should probably have an [ORCID](https://orcid.org)! You can omit this column or set it to NA if not applicable.
+#'  * `isCorporate`: Required. Set to TRUE if contact is an organization/corporation. Otherwise set to FALSE.
+#'
+#'  Note that in DataStore, the lists for contact type keys 1, 2, and 3 each map to a specific _type_ of contact, which depends on the reference type. Not every reference uses all three contact fields. Use [get_contact_types()] if you're not sure what each contact field corresponds to.
+#' @inheritParams upload_file_to_reference
+#'
+#' @returns A list representing the full updated bibliography.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE)
+#' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE, dev = FALSE)
+#' }
+set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE) {
+
+  # Validate arguments
+  .validate_ref_id(reference_id)
+  .validate_truefalse(dev)
+  .validate_truefalse(interactive)
+
+  # Validate contacts table
+  # Are required columns present?
+  req_cols <- c("contactTypeKey", "primaryName", "isCorporate")
+  if (!all((req_cols %in% names(contacts)))) {
+    cli::cli_abort("`contacts` dataframe must contain the following columns: {req_cols}. See `?set_contacts` for details.")
+  }
+  # make sure contactTypeKey and primaryName are present and valid
+  if (any(is.na(contacts$contactTypeKey))) {
+    cli::cli_abort("`contactTypeKey` is required for every contact.")
+  }
+  if (!all(contacts$contactTypeKey %in% c(1, 2, 3))) {
+    cli::cli_abort("`contactTypeKey` must be 1, 2, or 3.")
+  }
+  if (any(is.na(contacts$primaryName))) {
+    cli::cli_abort("`primaryName` is required for every contact.")
+  }
+
+  # Validate that reference is in draft mode, otherwise can't alter bibliography
+  .validate_lifecycle(ref_id = reference_id, expected_lifecycle = "Draft", is_dev = dev)
+
+  # Set values
+  nps_internal <- TRUE
+
+  # Verify that we're modifying the right reference
+  if (interactive) {
+    .user_validate_ref_title(ref_id = reference_id,
+                             is_secure = TRUE,
+                             is_dev = dev)
+  }
+
+
+  # Select necessary columns and add (empty) optional columns that may be missing
+  contact_cols <- c("contactTypeKey", "title", "primaryName", "firstName", "middleName", "suffix", "affiliation", "isCorporate", "orcid")
+  contacts <- dplyr::select(contacts, dplyr::any_of(contact_cols))
+  missing_cols <- contact_cols[!(contact_cols %in% names(contacts))]
+  contacts[missing_cols] <- NA_character_
+
+  # Turn empty strings into NA
+  contacts <- dplyr::mutate(contacts, dplyr::across(dplyr::where(is.character), ~dplyr::na_if(., "")))
+
+  # Turn contacts dataframe into a properly formatted list
+  body <- sapply(unique(contacts$contactTypeKey), function(key) {
+    contacts_by_type <- contacts |>
+      dplyr::filter(contactTypeKey == key) |>
+      dplyr::select(contact_cols[2:length(contact_cols)]) |>
+      dplyr::rename(ORCID = orcid)
+    contacts_by_type <- purrr::transpose(contacts_by_type)
+    return(contacts_by_type)
+  }, simplify = FALSE, USE.NAMES = TRUE)
+
+  names(body) <- paste0("contacts", unique(contacts$contactTypeKey))
+
+  bib <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+    httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
+    httr2::req_body_json(body) |>
+    httr2::req_method("PATCH") |>  # PATCH ensures that only the specified field (isAgencyOriginated) gets modified, not the whole bibliography
+    httr2::req_perform()
+
+  .validate_resp(bib)
+
+  bib <- .tidy_bibliography(bib)
+
+  invisible(bib$contacts)
 }
 
 #' Add DataStore reference(s) to a Project reference
