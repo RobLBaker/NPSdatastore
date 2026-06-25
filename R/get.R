@@ -400,9 +400,7 @@ get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FAL
 #'   bib <- get_bibliography(reference_id = 652358)
 #' }
 #'
-get_bibliography <- function(reference_id, dev = FALSE) {
-
-  nps_internal <- TRUE  # this is an internal-only endpoint
+get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 
   .validate_ref_id(reference_id)
 

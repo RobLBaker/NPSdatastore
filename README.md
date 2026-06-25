@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/nationalparkservice/NPSdatastore/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nationalparkservice/NPSdatastore/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/doi-nps/NPSdatastore/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/doi-nps/NPSdatastore/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The NPS DataStore is the official home of National Park Service (NPS)
@@ -44,7 +44,7 @@ You can install the development version of NPSdatastore from
 
 ``` r
 # install.packages("pak")
-pak::pak("nationalparkservice/NPSdatastore")
+pak::pak("doi-nps/NPSdatastore")
 ```
 
 ## Examples
