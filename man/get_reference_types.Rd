@@ -4,10 +4,12 @@
 \alias{get_reference_types}
 \title{Get a list of valid reference types}
 \usage{
-get_reference_types(dev = FALSE)
+get_reference_types(dev = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{dev}{Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A tibble with columns for reference code, label, description, and group code

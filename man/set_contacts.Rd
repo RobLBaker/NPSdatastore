@@ -4,7 +4,13 @@
 \alias{set_contacts}
 \title{Set contact(s) for a reference}
 \usage{
-set_contacts(reference_id, contacts, dev = TRUE, interactive = TRUE)
+set_contacts(
+  reference_id,
+  contacts,
+  dev = TRUE,
+  interactive = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{reference_id}{Numeric reference ID. You must have the appropriate permissions to edit this reference.}
@@ -26,6 +32,8 @@ Note that in DataStore, the lists for contact type keys 1, 2, and 3 each map to 
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
 
 \item{interactive}{Logical. Prompt for user confirmation before uploading?}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A list representing the full updated bibliography.

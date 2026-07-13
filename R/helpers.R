@@ -117,14 +117,15 @@ globalVariables(c("public_refs",
 #' @returns A httr2 request object with curl options set to allow authentication for NPS users (if using secure API)
 #' @keywords internal
 #'
-.datastore_request <- function(is_secure, is_dev, suppress_errors = TRUE) {
+.datastore_request <- function(is_secure, is_dev, suppress_errors = TRUE, verbose = FALSE) {
   base_url <- .get_base_url(is_secure = is_secure, is_dev = is_dev)
 
-  request <- httr2::request(base_url)
+  request <- httr2::request(base_url) |>
+    httr2::req_user_agent(paste0("NPSdatastore v", packageVersion("NPSdatastore"), " (https://github.com/DOI-NPS/NPSdatastore)"))
 
   if (is_secure) {
     request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
-                                  verbose = FALSE,
+                                  verbose = verbose,
                                   http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value,
                                   fresh_connect = TRUE) |>
       httr2::req_retry(max_tries = 6, retry_on_failure = TRUE)
@@ -148,8 +149,8 @@ globalVariables(c("public_refs",
 #' @returns List of reference profiles
 #' @keywords internal
 #'
-.get_reference_profiles <- function(reference_ids, is_secure, is_dev) {
-  request <- .datastore_request(is_secure = is_secure, is_dev = is_dev) |>
+.get_reference_profiles <- function(reference_ids, is_secure, is_dev, verbose = FALSE) {
+  request <- .datastore_request(is_secure = is_secure, is_dev = is_dev, verbose = verbose) |>
     httr2::req_url_path_append("Profile") |>
     httr2::req_url_query(q = reference_ids, .multi = "comma") |>
     httr2::req_perform()
@@ -426,9 +427,9 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 }
 
 .user_validate_ref_title <- function(ref_id, is_secure, is_dev,
-                                     call = rlang::caller_env()) {
+                                     call = rlang::caller_env(), verbose = FALSE) {
   # Get reference title
-  ref <- search_references_by_id_basic(reference_ids = ref_id, nps_internal = is_secure, dev = is_dev)
+  ref <- search_references_by_id_basic(reference_ids = ref_id, nps_internal = is_secure, dev = is_dev, verbose = verbose)
   ref_title <- ref$title
 
   # Get user input
@@ -458,7 +459,7 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #' emails_only <- active_directory_lookup(emails = emails)
 #' }
 #'
-active_directory_lookup <- function(upns, emails) {
+active_directory_lookup <- function(upns, emails, verbose = FALSE) {
   base_url <- "https://irmaservices.nps.gov/adverification/v1/rest"
 
   user_info <- tibble::tibble()
@@ -471,7 +472,8 @@ active_directory_lookup <- function(upns, emails) {
       httr2::req_body_raw(upns) |>
       httr2::req_headers(Accept = "application/json",
                          `Content-Type` = "application/json") |>
-      httr2::req_options(httpauth = 4L, userpwd = ":::") |>
+      httr2::req_options(httpauth = 4L, userpwd = ":::",
+                         verbose = verbose) |>
       httr2::req_perform()
 
     upn_info <- httr2::resp_body_json(upn_lookup)
@@ -488,7 +490,8 @@ active_directory_lookup <- function(upns, emails) {
       httr2::req_body_raw(emails) |>
       httr2::req_headers(Accept = "application/json",
                          `Content-Type` = "application/json") |>
-      httr2::req_options(httpauth = 4L, userpwd = ":::") |>
+      httr2::req_options(httpauth = 4L, userpwd = ":::",
+                         verbose = verbose) |>
       httr2::req_perform()
 
     email_info <- httr2::resp_body_json(email_lookup)

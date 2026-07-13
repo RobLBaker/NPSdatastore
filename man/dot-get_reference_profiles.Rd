@@ -4,7 +4,7 @@
 \alias{.get_reference_profiles}
 \title{Perform a single request to the Profile endpoint and tidy the data a little}
 \usage{
-.get_reference_profiles(reference_ids, is_secure, is_dev)
+.get_reference_profiles(reference_ids, is_secure, is_dev, verbose = FALSE)
 }
 \arguments{
 \item{reference_ids}{numeric vector of <=25 reference IDs}

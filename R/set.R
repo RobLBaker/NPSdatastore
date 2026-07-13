@@ -23,7 +23,7 @@
 #' }
 #'
 #'
-create_draft_reference <- function(title, reference_type_code, date_published, date_precision_code, dev = TRUE) {
+create_draft_reference <- function(title, reference_type_code, date_published, date_precision_code, dev = TRUE, verbose = FALSE) {
   # Validate inputs
   rlang::arg_match(reference_type_code, get_reference_types()$code)
   if (!missing(date_precision_code)) {
@@ -53,7 +53,7 @@ create_draft_reference <- function(title, reference_type_code, date_published, d
                        title = title,
                        issuedDate = date_published)
 
-  new_ref <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  new_ref <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", "CreateDraft") |>
     httr2::req_body_json(request_body,
                          type = "application/json") |>
@@ -86,6 +86,7 @@ create_draft_reference <- function(title, reference_type_code, date_published, d
 #' @param interactive Logical. Prompt for user confirmation before uploading?
 #' @param chunk_size_mb The "chunk" size to break the file into for upload. If your network is slow and your uploads are failing, try decreasing this number (e.g. 0.5 or 0.25).
 #' @param retry How many times to retry uploading a file chunk if it fails on the first try.
+#' @param verbose Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.
 #'
 #' @returns A tibble containing information about the uploaded file.
 #' @export
@@ -101,7 +102,7 @@ create_draft_reference <- function(title, reference_type_code, date_published, d
 #'                                    chunk_size_mb = 1)
 #' }
 #'
-upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, description, dev = TRUE, interactive = TRUE, chunk_size_mb = 1, retry = 1) {
+upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, description, dev = TRUE, interactive = TRUE, chunk_size_mb = 1, retry = 1, verbose = FALSE) {
 
   # Validate arguments
   .validate_ref_id(ref_id = reference_id, multiple_ok = FALSE)
@@ -123,14 +124,15 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Get a token, and retry if unsuccessful (datastore API doesn't always authenticate on first try)
   n_retries <- retry
   while (n_retries >= 0) {
     # Get a token, which we need for a multi-chunk upload
-    upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+    upload_token <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
       httr2::req_url_path_append("Reference", reference_id, "UploadFile", "TokenRequest") |>
       httr2::req_body_json(list(Name = file_name,
                                 Is508Compliant = is_508),
@@ -248,7 +250,7 @@ upload_file_to_reference <- function(reference_id, file_path, is_508 = FALSE, de
 #'   set_file_info(2313985, file_id = 731902, description = "testing 123")
 #' }
 #'
-set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE, interactive = TRUE) {
+set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   # Validate arguments
   .validate_ref_id(ref_id = reference_id, multiple_ok = FALSE)
 
@@ -263,7 +265,8 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = nps_internal,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   file_info <- get_file_info(reference_id, file_id, nps_internal = nps_internal, dev = dev) |>
@@ -281,7 +284,7 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
   }
   # TODO: Add userSort option (currently not working right in the API)
 
-  desc_resp <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  desc_resp <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "DigitalFiles") |>
     httr2::req_body_json(file_info,
                          type = "application/json") |>
@@ -316,12 +319,12 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
 #'
 #' }
 #'
-add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interactive = TRUE) {
+add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
   # Verify emails and UPNs with the AD verification API
-  user_info <- active_directory_lookup(upns = upns, emails = emails)
+  user_info <- active_directory_lookup(upns = upns, emails = emails, verbose = verbose)
   # Filter valid users
   valid_users <- dplyr::filter(user_info, found & !disabled)
 
@@ -368,7 +371,8 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Actually add the owners, finally
@@ -381,7 +385,7 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
                                email = mail)
   valid_users <- apply(valid_users, MARGIN = 1, FUN = as.list)
 
-  added_owners <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_body_json(valid_users) |>
     httr2::req_perform()
@@ -410,18 +414,19 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
 #' all_keywords <- add_keywords(reference_id = 00000, keywords = my_keywords, dev = TRUE)
 #' }
 #'
-add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE) {
+add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(reference_id)
 
   # Verify that we're modifying the right reference
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Add the keywords
-  added_keywords <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_keywords <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Keywords") |>
     httr2::req_body_json(as.list(keywords)) |>
     httr2::req_method("POST") |>
@@ -451,14 +456,15 @@ add_keywords <- function(reference_id, keywords, dev = TRUE, interactive = TRUE)
 #' all_content_units <- add_content_units(reference_id = 00000, parks = my_content_units, dev = TRUE)
 #' }
 #'
-add_content_units <- function(reference_id, parks, include_linked_units = FALSE, add_bounding_box = TRUE, dev = TRUE, interactive = TRUE) {
+add_content_units <- function(reference_id, parks, include_linked_units = FALSE, add_bounding_box = TRUE, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(reference_id)
 
   # Verify that we're modifying the right reference
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   parks <- lapply(parks, function(park) {
@@ -468,7 +474,7 @@ add_content_units <- function(reference_id, parks, include_linked_units = FALSE,
   })
 
   # Add the parks
-  added_parks <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_parks <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Units") |>
     httr2::req_body_json(parks) |>
     httr2::req_method("POST") |>
@@ -502,7 +508,7 @@ add_content_units <- function(reference_id, parks, include_linked_units = FALSE,
 #' dev = TRUE)
 #' }
 #'
-add_external_link <- function(reference_id, url, description, last_verified = format(Sys.Date(), "%Y-%m-%d"), dev = TRUE, interactive = TRUE) {
+add_external_link <- function(reference_id, url, description, last_verified = format(Sys.Date(), "%Y-%m-%d"), dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -510,7 +516,8 @@ add_external_link <- function(reference_id, url, description, last_verified = fo
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   links <- list(resourceId = 0,
@@ -519,7 +526,7 @@ add_external_link <- function(reference_id, url, description, last_verified = fo
                 uri = url,
                 lastVerified = last_verified)
 
-  added_link <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_link <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "ExternalLinks") |>
     httr2::req_body_json(links) |>
     httr2::req_method("POST") |>
@@ -550,7 +557,7 @@ add_external_link <- function(reference_id, url, description, last_verified = fo
 #' new_bib <- set_bibliography(reference_id = 00000, bibliography = bib, dev = TRUE)
 #' }
 #'
-set_bibliography <- function(reference_id, bibliography, dev = TRUE, interactive = TRUE) {
+set_bibliography <- function(reference_id, bibliography, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -563,7 +570,7 @@ set_bibliography <- function(reference_id, bibliography, dev = TRUE, interactive
 
   names(bibliography) <- stringr::str_replace(names(bibliography), pattern = "^description$", "abstract")
 
-  bib <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  bib <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
     httr2::req_body_json(bibliography) |>
     httr2::req_method("PUT") |>
@@ -590,7 +597,7 @@ set_bibliography <- function(reference_id, bibliography, dev = TRUE, interactive
 #' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE)
 #' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE, dev = FALSE)
 #' }
-set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = TRUE) {
+set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   # Validate arguments
   .validate_truefalse(by_for_nps)
@@ -609,12 +616,13 @@ set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = T
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   body <- list(isAgencyOriginated = by_for_nps)
 
-  bib <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  bib <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
     httr2::req_body_json(body) |>
     httr2::req_method("PATCH") |>  # PATCH ensures that only the specified field (isAgencyOriginated) gets modified, not the whole bibliography
@@ -656,7 +664,7 @@ set_by_for_nps <- function(reference_id, by_for_nps, dev = TRUE, interactive = T
 #' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE)
 #' new_bib <- set_by_for_nps(reference_id = 000000, by_for_nps = TRUE, dev = FALSE)
 #' }
-set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE) {
+set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   # Validate arguments
   .validate_ref_id(reference_id)
@@ -715,7 +723,7 @@ set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE)
 
   names(body) <- paste0("contacts", unique(contacts$contactTypeKey))
 
-  bib <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  bib <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
     httr2::req_body_json(body) |>
     httr2::req_method("PATCH") |>  # PATCH ensures that only the specified field (isAgencyOriginated) gets modified, not the whole bibliography
@@ -746,7 +754,7 @@ set_contacts <- function(reference_id, contacts, dev = TRUE, interactive = TRUE)
 #'                  dev = TRUE)
 #' }
 #'
-add_to_project <- function(project_id, reference_ids, dev = TRUE, interactive = TRUE) {
+add_to_project <- function(project_id, reference_ids, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(project_id)
   .validate_ref_id(reference_ids, multiple_ok = TRUE)
 
@@ -754,11 +762,12 @@ add_to_project <- function(project_id, reference_ids, dev = TRUE, interactive = 
   if (interactive) {
     .user_validate_ref_title(ref_id = project_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Add the references to the project
-  added_refs <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_refs <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", project_id, "ProductReference") |>
     httr2::req_body_json(as.list(reference_ids)) |>
     httr2::req_method("POST") |>
@@ -787,7 +796,7 @@ add_to_project <- function(project_id, reference_ids, dev = TRUE, interactive = 
 #'                        license_id = 1)  # CC0 license
 #' }
 #'
-set_license <- function(reference_id, license_type_id, dev = TRUE, interactive = TRUE) {
+set_license <- function(reference_id, license_type_id, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -795,10 +804,11 @@ set_license <- function(reference_id, license_type_id, dev = TRUE, interactive =
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
-  added_license <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  added_license <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "LicenseType") |>
     httr2::req_body_json(list(LicenseTypeId = license_type_id)) |>
     httr2::req_method("PUT") |>
@@ -827,16 +837,17 @@ set_license <- function(reference_id, license_type_id, dev = TRUE, interactive =
 #'   lifecycle_info <- set_lifecycle_active(reference_id = 652358)
 #' }
 #'
-set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE) {
+set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(reference_id)
   # Verify that we're modifying the right reference
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
-  lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Lifecycle", "Active") |>
     httr2::req_body_json(list()) |>
     httr2::req_method("PUT") |>
@@ -864,17 +875,18 @@ set_lifecycle_active <- function(reference_id, dev = TRUE, interactive = TRUE) {
 #'   lifecycle_info <- set_lifecycle_draft(reference_id = 652358)
 #' }
 #'
-set_lifecycle_draft <- function(reference_id, dev = TRUE, interactive = TRUE) {
+set_lifecycle_draft <- function(reference_id, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(reference_id)
   # Verify that we're modifying the right reference
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
 
-  lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  lifecycle_info <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Lifecycle", "Draft") |>
     httr2::req_body_json(list()) |>
     httr2::req_method("PUT") |>

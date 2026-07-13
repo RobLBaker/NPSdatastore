@@ -4,7 +4,12 @@
 \alias{set_lifecycle_active}
 \title{Activate a reference}
 \usage{
-set_lifecycle_active(reference_id, dev = TRUE, interactive = TRUE)
+set_lifecycle_active(
+  reference_id,
+  dev = TRUE,
+  interactive = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{reference_id}{Numeric reference ID. You must have the appropriate permissions to edit this reference.}
@@ -12,6 +17,8 @@ set_lifecycle_active(reference_id, dev = TRUE, interactive = TRUE)
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
 
 \item{interactive}{Logical. Prompt for user confirmation before uploading?}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 Invisibly returns the current lifecycle information for the reference

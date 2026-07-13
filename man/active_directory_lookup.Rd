@@ -4,7 +4,7 @@
 \alias{active_directory_lookup}
 \title{Look up emails and/or UPNs in Active Directory}
 \usage{
-active_directory_lookup(upns, emails)
+active_directory_lookup(upns, emails, verbose = FALSE)
 }
 \arguments{
 \item{upns}{A character vector of UPNs}

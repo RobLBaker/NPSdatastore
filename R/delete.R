@@ -18,7 +18,7 @@
 #'                                      dev = TRUE)
 #' }
 #'
-delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interactive = TRUE) {
+delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -30,7 +30,7 @@ delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interac
   }
 
   # Verify email or UPN with the AD verification API
-  user_info <- active_directory_lookup(upns = upn, emails = email)
+  user_info <- active_directory_lookup(upns = upn, emails = email, verbose = verbose)
 
   # Validate user identifier
   # list users not found
@@ -43,11 +43,12 @@ delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interac
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Actually delete the owners
-  delete_owners <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  delete_owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_url_query(userCode = user_info$userPrincipalName) |>
     httr2::req_method("DELETE") |>
@@ -77,18 +78,19 @@ delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interac
 #' delete_all_keywords(reference_id = 00000, dev = TRUE)
 #' }
 #'
-delete_all_keywords <- function(reference_id, dev = TRUE, interactive = TRUE) {
+delete_all_keywords <- function(reference_id, dev = TRUE, interactive = TRUE, verbose = FALSE) {
   .validate_ref_id(reference_id)
 
   # Verify that we're modifying the right reference
   if (interactive) {
     .user_validate_ref_title(ref_id = reference_id,
                              is_secure = TRUE,
-                             is_dev = dev)
+                             is_dev = dev,
+                             verbose = verbose)
   }
 
   # Add the keywords
-  delete_keywords <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  delete_keywords <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Keywords") |>
     httr2::req_method("DELETE") |>
     httr2::req_perform()

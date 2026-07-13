@@ -4,7 +4,13 @@
 \alias{add_to_project}
 \title{Add DataStore reference(s) to a Project reference}
 \usage{
-add_to_project(project_id, reference_ids, dev = TRUE, interactive = TRUE)
+add_to_project(
+  project_id,
+  reference_ids,
+  dev = TRUE,
+  interactive = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{project_id}{The reference ID of the Project}
@@ -14,6 +20,8 @@ add_to_project(project_id, reference_ids, dev = TRUE, interactive = TRUE)
 \item{dev}{Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.}
 
 \item{interactive}{Logical. Prompt for user confirmation before uploading?}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A character vector of all keywords for the reference

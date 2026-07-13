@@ -10,7 +10,8 @@ add_content_units(
   include_linked_units = FALSE,
   add_bounding_box = TRUE,
   dev = TRUE,
-  interactive = TRUE
+  interactive = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ add_content_units(
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
 
 \item{interactive}{Logical. Prompt for user confirmation before uploading?}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A character vector of all unit codes for the reference

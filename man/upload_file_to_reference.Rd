@@ -12,7 +12,8 @@ upload_file_to_reference(
   dev = TRUE,
   interactive = TRUE,
   chunk_size_mb = 1,
-  retry = 1
+  retry = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ upload_file_to_reference(
 \item{chunk_size_mb}{The "chunk" size to break the file into for upload. If your network is slow and your uploads are failing, try decreasing this number (e.g. 0.5 or 0.25).}
 
 \item{retry}{How many times to retry uploading a file chunk if it fails on the first try.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A tibble containing information about the uploaded file.
