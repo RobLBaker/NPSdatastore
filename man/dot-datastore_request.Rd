@@ -12,6 +12,8 @@
 \item{is_dev}{Retrieve the dev version of the API base URL?}
 
 \item{suppress_errors}{Suppress HTTP errors? Set to TRUE if using \code{.validate_resp()}}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A httr2 request object with curl options set to allow authentication for NPS users (if using secure API)

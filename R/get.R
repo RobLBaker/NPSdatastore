@@ -1,9 +1,9 @@
 #' Search NPS DataStore references by their ID
 #'
+#' @inheritParams upload_file_to_reference
 #' @param reference_ids Numeric vector of reference IDs.
 #' @param nps_internal Logical. NPS users on the internal network can set to TRUE to authenticate and view non-public data and create or modify references. All other users can ignore this argument and allow it to default to FALSE.
 #' @param dev Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.
-#' @param verbose Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.
 #'
 #' @returns A named list containing detailed information about each reference, where the names are the reference IDs.
 #' @export

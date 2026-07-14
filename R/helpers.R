@@ -111,6 +111,7 @@ globalVariables(c("public_refs",
 
 #' Create httr2 request for DataStore API
 #'
+#' @inheritParams upload_file_to_reference
 #' @inheritParams .get_base_url
 #' @param suppress_errors Suppress HTTP errors? Set to TRUE if using `.validate_resp()`
 #'
@@ -143,8 +144,8 @@ globalVariables(c("public_refs",
 #' This endpoint only returns 25 results at a time; this helper function is used
 #' inside of a loop or apply fxn to support retrieval of >25 profiles at a time
 #'
+#' @inheritParams .datastore_request
 #' @param reference_ids numeric vector of <=25 reference IDs
-#' @inheritParams .get_base_url
 #'
 #' @returns List of reference profiles
 #' @keywords internal
@@ -444,6 +445,7 @@ example_ref_ids <- function(visibility = c("public", "internal", "both"), n, see
 #'
 #' Only works for NPS users on the internal network. Accepts a vector of UPNs, a vector of emails, or both.
 #'
+#' @inheritParams .datastore_request
 #' @param upns A character vector of UPNs
 #' @param emails A character vector of email addresses
 #'
