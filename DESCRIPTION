@@ -7,7 +7,6 @@ Description: Interact with the National Park Service (NPS) DataStore in R. NPS D
 License: CC0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests: 
     httptest2,
     knitr,
@@ -35,3 +34,4 @@ URL: https://doi-nps.github.io/NPSdatastore/, https://github.com/doi-nps/NPSdata
 BugReports: https://github.com/doi-nps/NPSdatastore/issues
 Remotes: 
     doi-nps/QCkit
+Config/roxygen2/version: 8.0.0
