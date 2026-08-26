@@ -42,5 +42,5 @@ delete_inactive_ref <- function(reference_id,
     msg <- paste0("Reference ", reference_id, " has been deleted.")
     cli::cli_inform(msg)
   }
-  return(invisble(NULL))
+  return(invisible(NULL))
 }
