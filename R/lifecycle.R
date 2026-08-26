@@ -4,7 +4,7 @@
 #'
 #' @inheritParams upload_file_to_reference
 #'
-#' @returns
+#' @returns NULL (invisibly)
 #' @export
 #'
 #' @examples
