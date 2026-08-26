@@ -1,6 +1,19 @@
-
-
-
+#' Delete an inactive reference
+#'
+#' This function will delete one reference. The reference must be in an inactive status and the person running the function must be an editor on the reference to delete it. Use with caution. This is not easily undone!
+#'
+#' @inheritParams upload_file_to_reference
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' delete_inactive_ref(reference_id = 00000,
+#'                     dev = TRUE,
+#'                     interactive = TRUE)
+#' }
 delete_inactive_ref <- function(reference_id,
                                 dev = TRUE,
                                 interactive = TRUE) {
@@ -12,10 +25,13 @@ delete_inactive_ref <- function(reference_id,
                              is_dev = dev)
   }
   # Actually delete the reference:
+  request_body <- "null"
   delete_ref <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
     httr2::req_url_path_append("Reference",
                                reference_id,
                                "Lifecycle/Inactive") |>
+    httr2::req_body_json(request_body,
+                         type = "application/json") |>
     httr2::req_method("PUT") |>
     httr2::req_perform()
   .validate_resp(delete_ref,
