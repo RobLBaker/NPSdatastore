@@ -37,5 +37,10 @@ delete_inactive_ref <- function(reference_id,
                  nice_msg_500 = paste0("Could not modify ", reference_id,
                                        ". You must be a reference editor to ",
                                        "modify a reference."))
+  # notify of success:
+  if (interactive && delete_ref$status_code == 200) {
+    msg <- paste0("Reference ", reference_id, " has been deleted.")
+    cli::cli_inform(msg)
+  }
   return(invisble(NULL))
 }
