@@ -9,7 +9,6 @@
 #'
 #' @examples
 #' \dontrun{
-#'
 #' delete_inactive_ref(reference_id = 00000,
 #'                     dev = TRUE,
 #'                     interactive = TRUE)
@@ -35,8 +34,8 @@ delete_inactive_ref <- function(reference_id,
     httr2::req_method("PUT") |>
     httr2::req_perform()
   .validate_resp(delete_ref,
-                 nice_msg_500 = paste0("Could not delete ", reference_id,
+                 nice_msg_500 = paste0("Could not modify ", reference_id,
                                        ". You must be a reference editor to ",
-                                       "delete a reference."))
+                                       "modify a reference."))
   return(invisble(NULL))
 }
