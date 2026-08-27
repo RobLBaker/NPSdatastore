@@ -4,12 +4,14 @@
 \alias{active_directory_lookup}
 \title{Look up emails and/or UPNs in Active Directory}
 \usage{
-active_directory_lookup(upns, emails)
+active_directory_lookup(upns, emails, verbose = FALSE)
 }
 \arguments{
 \item{upns}{A character vector of UPNs}
 
 \item{emails}{A character vector of email addresses}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A dataframe of user information with a row for each UPN and email address searched, regardless of whether it exists in the system. If \code{found} is \code{TRUE}, the user exists. If \code{disabled} is \code{FALSE}, the user exists but has been deactivated.

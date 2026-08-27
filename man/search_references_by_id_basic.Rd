@@ -4,7 +4,12 @@
 \alias{search_references_by_id_basic}
 \title{Search NPS DataStore references by ID}
 \usage{
-search_references_by_id_basic(reference_ids, nps_internal = FALSE, dev = FALSE)
+search_references_by_id_basic(
+  reference_ids,
+  nps_internal = FALSE,
+  dev = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{reference_ids}{Numeric vector of reference IDs.}
@@ -12,6 +17,8 @@ search_references_by_id_basic(reference_ids, nps_internal = FALSE, dev = FALSE)
 \item{nps_internal}{Logical. NPS users on the internal network can set to TRUE to authenticate and view non-public data and create or modify references. All other users can ignore this argument and allow it to default to FALSE.}
 
 \item{dev}{Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A tibble containing basic information about each reference.

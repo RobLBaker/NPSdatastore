@@ -4,7 +4,7 @@
 \alias{.get_reference_profiles}
 \title{Perform a single request to the Profile endpoint and tidy the data a little}
 \usage{
-.get_reference_profiles(reference_ids, is_secure, is_dev)
+.get_reference_profiles(reference_ids, is_secure, is_dev, verbose = FALSE)
 }
 \arguments{
 \item{reference_ids}{numeric vector of <=25 reference IDs}
@@ -12,6 +12,8 @@
 \item{is_secure}{Retrieve the secure version of the API base URL?}
 
 \item{is_dev}{Retrieve the dev version of the API base URL?}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 List of reference profiles

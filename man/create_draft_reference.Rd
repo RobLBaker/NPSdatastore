@@ -9,7 +9,8 @@ create_draft_reference(
   reference_type_code,
   date_published,
   date_precision_code,
-  dev = TRUE
+  dev = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ create_draft_reference(
 \item{date_precision_code}{Optional. If \code{date_published} only specifies the year, you may optionally use this to specify a season or quarter. See \code{get_date_precision()} for valid options.}
 
 \item{dev}{Logical. Defaults to TRUE because it's best to attempt to modify references on the development & testing version of DataStore first. When everything is working, change to \code{dev = FALSE} and run again to edit the real reference.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A list containing information about the uploaded reference, including reference profile URL and reference ID.

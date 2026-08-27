@@ -17,12 +17,14 @@ test_that(".datastore_request returns the correct URL and auth info", {
   expect_equal(public_dev$url, "https://irmadevservices.nps.gov/datastore/v8/rest")
   expect_equal(secure_dev$url, "https://irmadevservices.nps.gov/datastore-secure/v8/rest")
 
-  expect_length(public$options, 0)
-  expect_length(public_dev$options, 0)
+  expect_length(public$options, 1)
+  expect_length(public_dev$options, 1)
 
-  expect_equal(secure$options, list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
-  expect_equal(secure_dev$options, list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
+  expect_equal(secure$options[2:6], list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
+  expect_equal(secure_dev$options[2:6], list(httpauth = 4, userpwd = ":::", verbose = FALSE, http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value, fresh_connect = TRUE))
 
+  expect_equal(names(secure$options), c("useragent", "httpauth", "userpwd", "verbose", "http_version", "fresh_connect"))
+  expect_equal(names(secure_dev$options), c("useragent", "httpauth", "userpwd", "verbose", "http_version", "fresh_connect"))
 })
 
 test_that("example_ref_ids returns example reference IDs", {

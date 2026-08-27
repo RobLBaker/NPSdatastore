@@ -4,10 +4,12 @@
 \alias{get_date_precision}
 \title{Get a list of valid values for date precision}
 \usage{
-get_date_precision(dev = FALSE)
+get_date_precision(dev = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{dev}{Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A tibble with columns for date precision code and label

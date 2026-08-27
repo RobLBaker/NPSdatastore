@@ -4,12 +4,14 @@
 \alias{get_contact_types}
 \title{Get a list of valid contact types}
 \usage{
-get_contact_types(reference_type, dev = FALSE)
+get_contact_types(reference_type, dev = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{reference_type}{Optional. A valid reference type, as found in the \code{code} column returned by \code{get_reference_types()}. If omitted, will return contact types for every reference type.}
 
 \item{dev}{Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.}
+
+\item{verbose}{Logical. Leave this option as FALSE unless you have reported a bug and are asked to provide diagnostic info.}
 }
 \value{
 A tibble with columns for reference code, key, label, and description

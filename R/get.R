@@ -1,5 +1,6 @@
 #' Search NPS DataStore references by their ID
 #'
+#' @inheritParams upload_file_to_reference
 #' @param reference_ids Numeric vector of reference IDs.
 #' @param nps_internal Logical. NPS users on the internal network can set to TRUE to authenticate and view non-public data and create or modify references. All other users can ignore this argument and allow it to default to FALSE.
 #' @param dev Logical. Set to TRUE to use the development & testing version of the API. If this means nothing to you, ignore and allow it to default to FALSE.
@@ -15,7 +16,7 @@
 #'                                         dev = FALSE)
 #' }
 #'
-search_references_by_id <- function(reference_ids, nps_internal = FALSE, dev = FALSE) {
+search_references_by_id <- function(reference_ids, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
   .validate_truefalse(nps_internal)
   .validate_truefalse(dev)
 
@@ -67,14 +68,14 @@ search_references_by_id <- function(reference_ids, nps_internal = FALSE, dev = F
 #'                                         dev = FALSE)
 #' }
 #'
-search_references_by_id_basic <- function(reference_ids, nps_internal = FALSE, dev = FALSE) {
+search_references_by_id_basic <- function(reference_ids, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   reference_ids <- unique(reference_ids)  # Make sure there aren't duplicate IDs
 
   .validate_ref_id(reference_ids, multiple_ok = TRUE)
 
   # Perform the request
-  request <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  request <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("ReferenceCodeSearch") |>
     httr2::req_url_query(q = reference_ids, .multi = "comma") |>
     httr2::req_perform()
@@ -109,9 +110,9 @@ search_references_by_id_basic <- function(reference_ids, nps_internal = FALSE, d
 #' valid_ref_types <- get_reference_types()
 #' }
 #'
-get_reference_types <- function(dev = FALSE) {
+get_reference_types <- function(dev = FALSE, verbose = FALSE) {
   # Get the full list of reference types
-  ref_types <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+  ref_types <- .datastore_request(is_secure = FALSE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("FixedList/ReferenceTypes") |>
     httr2::req_perform()
 
@@ -125,7 +126,7 @@ get_reference_types <- function(dev = FALSE) {
   ref_types$ref_group_code <- NA
 
   # Get reference type groupings
-  ref_groups <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+  ref_groups <- .datastore_request(is_secure = FALSE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("FixedList/ReferenceTypeGroups") |>
     httr2::req_perform()
 
@@ -159,7 +160,7 @@ get_reference_types <- function(dev = FALSE) {
 #' valid_contact_types <- get_contact_types()
 #' }
 #'
-get_contact_types <- function(reference_type, dev = FALSE) {
+get_contact_types <- function(reference_type, dev = FALSE, verbose = FALSE) {
 
   # Get the full list of reference types
   ref_types <- get_reference_types(dev = dev)$code
@@ -173,7 +174,7 @@ get_contact_types <- function(reference_type, dev = FALSE) {
   }
 
   contact_types <- lapply(reference_type, function(ref_code) {
-    contact_req <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+    contact_req <- .datastore_request(is_secure = FALSE, is_dev = dev, verbose = verbose) |>
       httr2::req_url_path_append("FixedList", ref_code, "Contacts") |>
       httr2::req_perform()
 
@@ -207,9 +208,9 @@ get_contact_types <- function(reference_type, dev = FALSE) {
 #' valid_precisions <- get_date_precision()
 #' }
 #'
-get_date_precision <- function(dev = FALSE) {
+get_date_precision <- function(dev = FALSE, verbose = FALSE) {
   # Get the full list of date precision keywords
-  precisions <- .datastore_request(is_secure = FALSE, is_dev = dev) |>
+  precisions <- .datastore_request(is_secure = FALSE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("FixedList/DatePrecisions") |>
     httr2::req_perform()
 
@@ -238,11 +239,11 @@ get_date_precision <- function(dev = FALSE) {
 #' owners <- get_reference_owners(reference_id = 652358)
 #' }
 #'
-get_reference_owners <- function(reference_id, dev = FALSE) {
+get_reference_owners <- function(reference_id, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  owners <- .datastore_request(is_secure = TRUE, is_dev = dev) |>
+  owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_perform()
 
@@ -267,11 +268,11 @@ get_reference_owners <- function(reference_id, dev = FALSE) {
 #' @examples
 #' owners <- get_keywords(reference_id = 652358)
 #'
-get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  keywords <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  keywords <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Keywords") |>
     httr2::req_perform()
 
@@ -298,11 +299,11 @@ get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' links <- get_external_links(reference_id = 652358)
 #' }
 #'
-get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  links <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  links <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "ExternalLinks") |>
     httr2::req_method("GET") |>
     httr2::req_perform()
@@ -338,17 +339,17 @@ get_external_links <- function(reference_id, nps_internal = FALSE, dev = FALSE) 
 #' specific_file <- get_file_info(reference_id = 2305163, file_id = 706913)
 #' }
 #'
-get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FALSE) {
+get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
   if (missing(file_id)) {
-    files <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+    files <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
       httr2::req_url_path_append("Reference", reference_id, "DigitalFiles") |>
       httr2::req_method("GET") |>
       httr2::req_perform()
   } else {
-    files <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+    files <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
       httr2::req_url_path_append("Reference", reference_id, "DigitalFiles", file_id) |>
       httr2::req_method("GET") |>
       httr2::req_perform()
@@ -400,11 +401,11 @@ get_file_info <- function(reference_id, file_id, nps_internal = FALSE, dev = FAL
 #'   bib <- get_bibliography(reference_id = 652358)
 #' }
 #'
-get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  bib <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  bib <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Bibliography") |>
     httr2::req_method("GET") |>
     httr2::req_perform()
@@ -430,11 +431,11 @@ get_bibliography <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #' park_units <- get_park_units(reference_id = 2305911)
 #' }
 #'
-get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  park_units <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  park_units <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Units") |>
     httr2::req_perform()
 
@@ -483,7 +484,7 @@ get_park_units <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #'   by_for_nps <- get_by_for_nps(reference_id = 652358)
 #' }
 #'
-get_by_for_nps <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
+get_by_for_nps <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
   bib <- get_bibliography(reference_id, nps_internal, dev)
   by_for_nps <- bib$isAgencyOriginated
 
@@ -504,12 +505,12 @@ get_by_for_nps <- function(reference_id, nps_internal = FALSE, dev = FALSE) {
 #'   lifecycle = lifecycle_info$lifecycle
 #' }
 #'
-get_lifecycle_info <- function(reference_id, dev = FALSE) {
+get_lifecycle_info <- function(reference_id, dev = FALSE, verbose = FALSE) {
   .validate_ref_id(reference_id)
 
   nps_internal <- TRUE
 
-  lifecycle_info <- .datastore_request(is_secure = nps_internal, is_dev = dev) |>
+  lifecycle_info <- .datastore_request(is_secure = nps_internal, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "LifecycleConstraints") |>
     httr2::req_method("GET") |>
     httr2::req_perform()

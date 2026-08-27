@@ -3,7 +3,7 @@
     "name": "NPSdatastore",
     "organization": "NATIONAL PARK SERVICE",
     "description": "An R Interface for the National Park Service DataStore API",
-    "version": "0.0.1",
+    "version": "0.0.0.9005",
     "status": "ongoing development",
     "permissions": {
       "usageType": "openSource",
