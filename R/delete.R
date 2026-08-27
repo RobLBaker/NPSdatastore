@@ -1,24 +1,24 @@
-#' Delete an owner from a DataStore reference
+#' Delete an editor from a DataStore reference
 #'
 #' @param upn A single user's UPN. Must specify either `upn` or `email` but not both.
 #' @param email A single user's email. Must specify either `upn` or `email` but not both.
 #' @inheritParams upload_file_to_reference
 #'
-#' @returns A tibble of all reference owners with columns userCode, lastName, firstName, and email
+#' @returns A tibble of all reference editors with columns userCode, lastName, firstName, and email
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #'
-#' all_owners <- delete_reference_owner(reference_id = 00000,
+#' all_owners <- delete_reference_editor(reference_id = 00000,
 #'                                      email = "edward_abbey@nps.gov",
 #'                                      dev = TRUE)
-#' all_owners <- delete_reference_owner(reference_id = 00000,
+#' all_owners <- delete_reference_editor(reference_id = 00000,
 #'                                      upn = "gmwright@nps.gov",
 #'                                      dev = TRUE)
 #' }
 #'
-delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interactive = TRUE, verbose = FALSE) {
+delete_reference_editor <- function(reference_id, upn, email, dev = TRUE, interactive = TRUE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -30,7 +30,9 @@ delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interac
   }
 
   # Verify email or UPN with the AD verification API
-  user_info <- active_directory_lookup(upns = upn, emails = email, verbose = verbose)
+  user_info <- active_directory_lookup(upns = upn,
+                                       emails = email,
+                                       verbose = verbose)
 
   # Validate user identifier
   # list users not found
@@ -48,21 +50,29 @@ delete_reference_owner <- function(reference_id, upn, email, dev = TRUE, interac
   }
 
   # Actually delete the owners
-  delete_owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
+  delete_editors <- .datastore_request(is_secure = TRUE,
+                                       is_dev = dev,
+                                       verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_url_query(userCode = user_info$userPrincipalName) |>
     httr2::req_method("DELETE") |>
     httr2::req_perform()
 
-  .validate_resp(delete_owners, nice_msg_500 = paste0("Could not remove ", user_info$userPrincipalName,
-                                                      " from reference ", reference_id,
-                                                      ". If they are the only owner of the reference, you must add another owner before you can remove them."))
+  .validate_resp(delete_editors,
+                 nice_msg_500 = paste0("Could not remove ",
+                                       user_info$userPrincipalName,
+                                       " from reference ", reference_id,
+                                       ". If they are the only owner of the ",
+                                       "reference, you must add another owner",
+                                       " before you can remove them."))
 
-  all_owners <- httr2::resp_body_json(delete_owners)
-  all_owners <- suppressWarnings(data.table::rbindlist(all_owners, use.names = TRUE, fill = TRUE))
-  all_owners <- tibble::as_tibble(all_owners)
+  all_editors <- httr2::resp_body_json(delete_editors)
+  all_editors <- suppressWarnings(data.table::rbindlist(all_editors,
+                                                        use.names = TRUE,
+                                                        fill = TRUE))
+  all_editors <- tibble::as_tibble(all_editors)
 
-  return(all_owners)
+  return(all_editors)
 }
 
 
