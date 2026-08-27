@@ -266,7 +266,7 @@ get_reference_editors <- function(reference_id, dev = FALSE, verbose = FALSE) {
 #' @export
 #'
 #' @examples
-#' owners <- get_keywords(reference_id = 652358)
+#' keywords <- get_keywords(reference_id = 652358)
 #'
 get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 
