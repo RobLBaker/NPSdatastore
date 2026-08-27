@@ -10,10 +10,10 @@
 #' @examples
 #' \dontrun{
 #'
-#' all_owners <- delete_reference_editor(reference_id = 00000,
+#' all_editors <- delete_reference_editor(reference_id = 00000,
 #'                                      email = "edward_abbey@nps.gov",
 #'                                      dev = TRUE)
-#' all_owners <- delete_reference_editor(reference_id = 00000,
+#' all_editors <- delete_reference_editor(reference_id = 00000,
 #'                                      upn = "gmwright@nps.gov",
 #'                                      dev = TRUE)
 #' }
@@ -49,7 +49,7 @@ delete_reference_editor <- function(reference_id, upn, email, dev = TRUE, intera
                              verbose = verbose)
   }
 
-  # Actually delete the owners
+  # Actually delete the editors
   delete_editors <- .datastore_request(is_secure = TRUE,
                                        is_dev = dev,
                                        verbose = verbose) |>
@@ -62,8 +62,8 @@ delete_reference_editor <- function(reference_id, upn, email, dev = TRUE, intera
                  nice_msg_500 = paste0("Could not remove ",
                                        user_info$userPrincipalName,
                                        " from reference ", reference_id,
-                                       ". If they are the only owner of the ",
-                                       "reference, you must add another owner",
+                                       ". If they are the only editor of the ",
+                                       "reference, you must add another editor",
                                        " before you can remove them."))
 
   all_editors <- httr2::resp_body_json(delete_editors)
