@@ -302,12 +302,12 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
   return(file_info)
 }
 
-#' Add owners to a DataStore reference
+#' Add editrs to a DataStore reference
 #'
 #' @inheritParams active_directory_lookup
 #' @inheritParams upload_file_to_reference
 #'
-#' @returns A tibble of all reference owners with columns userCode, lastName, firstName, and email
+#' @returns A tibble of all reference editors with columns userCode, lastName, firstName, and email
 #' @export
 #'
 #' @examples
@@ -315,11 +315,16 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
 #' upns <- c("gmwright@nps.gov", "ymexia@nps.gov")
 #' emails <- c("enid_michael@nps.gov", "edward_abbey@nps.gov")
 #'
-#' all_owners <- add_reference_owners(reference_id = 00000, upns = upns, emails = emails, dev = TRUE)
+#' all_editors <- add_reference_editors(reference_id = 00000, upns = upns, emails = emails, dev = TRUE)
 #'
 #' }
 #'
-add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interactive = TRUE, verbose = FALSE) {
+add_reference_editors <- function(reference_id,
+                                  upns,
+                                  emails,
+                                  dev = TRUE,
+                                  interactive = TRUE,
+                                  verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
@@ -358,11 +363,12 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
 
     if (nrow(valid_users) > 0) {
       names(msg) <- rep("!", length(msg))
-      cli::cli_warn(c("The following users could not be added as owners because... ",
-                      msg))  # If there are some valid users, just throw a warning
+      cli::cli_warn(c(paste0("The following users could not be added as ",
+                             "editors because... ",
+                             msg))  # If there are some valid users, just throw a warning
     } else {
       names(msg) <- rep("x", length(msg))
-      cli::cli_abort(c("No users could be added as owners because... ",
+      cli::cli_abort(c("No users could be added as editors because... ",
                        msg))  # If there are no valid users, throw an error
     }
   }
@@ -375,7 +381,7 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
                              verbose = verbose)
   }
 
-  # Actually add the owners, finally
+  # Actually add the editors, finally
 
   # Get userCode (UPN), lastName, firstName, and email
   valid_users <- dplyr::select(valid_users,
@@ -385,18 +391,22 @@ add_reference_owners <- function(reference_id, upns, emails, dev = TRUE, interac
                                email = mail)
   valid_users <- apply(valid_users, MARGIN = 1, FUN = as.list)
 
-  added_owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
+  added_editors <- .datastore_request(is_secure = TRUE,
+                                     is_dev = dev,
+                                     verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_body_json(valid_users) |>
     httr2::req_perform()
 
-  .validate_resp(added_owners)
+  .validate_resp(added_editors)
 
-  all_owners <- httr2::resp_body_json(added_owners)
-  all_owners <- suppressWarnings(data.table::rbindlist(all_owners, use.names = TRUE, fill = TRUE))
-  all_owners <- tibble::as_tibble(all_owners)
+  all_editors <- httr2::resp_body_json(added_editors)
+  all_editors <- suppressWarnings(data.table::rbindlist(all_editors,
+                                                        use.names = TRUE,
+                                                        fill = TRUE))
+  all_editors <- tibble::as_tibble(all_editors)
 
-  return(all_owners)
+  return(all_editors)
 }
 
 
