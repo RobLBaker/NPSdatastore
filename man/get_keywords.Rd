@@ -22,6 +22,6 @@ A character vector of keywords.
 Retrieve the keywords for a DataStore reference
 }
 \examples{
-owners <- get_keywords(reference_id = 652358)
+keywords <- get_keywords(reference_id = 652358)
 
 }
