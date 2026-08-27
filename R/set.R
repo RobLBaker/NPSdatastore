@@ -365,7 +365,7 @@ add_reference_editors <- function(reference_id,
       names(msg) <- rep("!", length(msg))
       cli::cli_warn(c(paste0("The following users could not be added as ",
                              "editors because... ",
-                             msg))  # If there are some valid users, just throw a warning
+                             msg)))  # If there are some valid users, just throw a warning
     } else {
       names(msg) <- rep("x", length(msg))
       cli::cli_abort(c("No users could be added as editors because... ",
