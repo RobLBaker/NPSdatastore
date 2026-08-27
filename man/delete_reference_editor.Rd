@@ -35,10 +35,10 @@ Delete an editor from a DataStore reference
 \examples{
 \dontrun{
 
-all_owners <- delete_reference_editor(reference_id = 00000,
+all_editors <- delete_reference_editor(reference_id = 00000,
                                      email = "edward_abbey@nps.gov",
                                      dev = TRUE)
-all_owners <- delete_reference_editor(reference_id = 00000,
+all_editors <- delete_reference_editor(reference_id = 00000,
                                      upn = "gmwright@nps.gov",
                                      dev = TRUE)
 }
