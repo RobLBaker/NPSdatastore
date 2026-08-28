@@ -224,7 +224,7 @@ get_date_precision <- function(dev = FALSE, verbose = FALSE) {
   return(precisions)
 }
 
-#' List the owners of a DataStore reference
+#' List the editors of a DataStore reference
 #'
 #' Only available for NPS users on the internal network.
 #'
@@ -236,25 +236,25 @@ get_date_precision <- function(dev = FALSE, verbose = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' owners <- get_reference_owners(reference_id = 652358)
+#' editors <- get_reference_editors(reference_id = 652358)
 #' }
 #'
-get_reference_owners <- function(reference_id, dev = FALSE, verbose = FALSE) {
+get_reference_editors <- function(reference_id, dev = FALSE, verbose = FALSE) {
 
   .validate_ref_id(reference_id)
 
-  owners <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
+  editors <- .datastore_request(is_secure = TRUE, is_dev = dev, verbose = verbose) |>
     httr2::req_url_path_append("Reference", reference_id, "Owners") |>
     httr2::req_perform()
 
-  .validate_resp(owners)
+  .validate_resp(editors)
 
-  owners <- httr2::resp_body_json(owners)
+  editors <- httr2::resp_body_json(editors)
 
-  owners <- suppressWarnings(data.table::rbindlist(owners, use.names = TRUE, fill = TRUE))
-  owners <- tibble::as_tibble(owners)
+  editors <- suppressWarnings(data.table::rbindlist(editors, use.names = TRUE, fill = TRUE))
+  editors <- tibble::as_tibble(editors)
 
-  return(owners)
+  return(editors)
 }
 
 #' Retrieve the keywords for a DataStore reference
@@ -266,7 +266,7 @@ get_reference_owners <- function(reference_id, dev = FALSE, verbose = FALSE) {
 #' @export
 #'
 #' @examples
-#' owners <- get_keywords(reference_id = 652358)
+#' keywords <- get_keywords(reference_id = 652358)
 #'
 get_keywords <- function(reference_id, nps_internal = FALSE, dev = FALSE, verbose = FALSE) {
 

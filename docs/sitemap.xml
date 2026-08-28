@@ -17,7 +17,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/create_draft_reference.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_all_keywords.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_inactive_ref.html</loc></url>
-<url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_reference_owner.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_reference_editor.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-datastore_request.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_base_url.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_reference_profiles.html</loc></url>
@@ -37,7 +37,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_keywords.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_lifecycle_info.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_park_units.html</loc></url>
-<url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_owners.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_editors.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_types.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/index.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/internal_refs.html</loc></url>
