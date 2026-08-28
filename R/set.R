@@ -302,7 +302,7 @@ set_file_info <- function(reference_id, file_id, description, is_508, dev = TRUE
   return(file_info)
 }
 
-#' Add editrs to a DataStore reference
+#' Add editors to a DataStore reference
 #'
 #' @inheritParams active_directory_lookup
 #' @inheritParams upload_file_to_reference
