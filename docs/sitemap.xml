@@ -12,7 +12,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_external_link.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_keywords.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_producing_units.html</loc></url>
-<url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_reference_owners.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_reference_editors.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/add_to_project.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/create_draft_reference.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_all_keywords.html</loc></url>
@@ -35,6 +35,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_external_links.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_file_info.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_keywords.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_legal_authority.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_lifecycle_info.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_park_units.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_editors.html</loc></url>
