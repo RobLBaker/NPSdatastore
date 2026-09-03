@@ -128,16 +128,18 @@ get_date_precision <- function(dev = FALSE, verbose = FALSE) {
 
 #' Get a list of legal authorities for restricting DataStore reference files
 #'
-#' The function `lookup_legal_authority` returns a tibble of the current acceptable legal authorities for restricting files attached to references on DataStore.
+#' The function `get_legal_authority` returns a tibble of the current acceptable legal authorities for restricting files attached to references on DataStore.
 #'
-#' @param dev
-#' @param verbose
+#' @inheritParams search_references_by_id
 #'
-#' @returns
+#' @returns A tibble where each row has a separate legal authority for restricting file downloads on DataStore.
 #' @export
 #'
 #' @examples
-lookup_legal_authority <- function(dev = FALSE, verbose = FALSE) {
+#'  \dontrun{
+#' authorities <- get_legal_authority()
+#' }
+get_legal_authority <- function(dev = FALSE, verbose = FALSE) {
 
   authority <- .datastore_request(is_secure= FALSE,
                                   is_dev = dev,
