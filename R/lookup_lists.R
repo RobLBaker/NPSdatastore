@@ -110,7 +110,9 @@ get_contact_types <- function(reference_type, dev = FALSE, verbose = FALSE) {
 #'
 get_date_precision <- function(dev = FALSE, verbose = FALSE) {
   # Get the full list of date precision keywords
-  precisions <- .datastore_request(is_secure = FALSE, is_dev = dev, verbose = verbose) |>
+  precisions <- .datastore_request(is_secure = FALSE,
+                                   is_dev = dev,
+                                   verbose = verbose) |>
     httr2::req_url_path_append("FixedList/DatePrecisions") |>
     httr2::req_perform()
 
@@ -124,8 +126,30 @@ get_date_precision <- function(dev = FALSE, verbose = FALSE) {
   return(precisions)
 }
 
+#' Get a list of legal authorities for restricting DataStore reference files
+#'
+#' The function `lookup_legal_authority` returns a tibble of the current acceptable legal authorities for restricting files attached to references on DataStore.
+#'
+#' @param dev
+#' @param verbose
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+lookup_legal_authority <- function(dev = FALSE, verbose = FALSE) {
 
+  authority <- .datastore_request(is_secure= FALSE,
+                                  is_dev = dev,
+                                  verbose = verbose) |>
+    httr2::req_url_path_append("FixedList/AccessConstraints/LegalAuthority") |>
+    httr2::req_perform()
 
-lookup_legal_authrity <- function() {
+  .validate_resp(authority)
 
+  authority <- httr2::resp_body_json(authority)
+
+  authority <- dplyr::bind_rows(authority)
+
+  return(authority)
 }
