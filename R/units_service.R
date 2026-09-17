@@ -34,10 +34,14 @@ get_all_nps_units <- function(dev = FALSE, verbose = FALSE) {
 #' @param dev Logical. Defaults to FALSE. Should the dev API be used?
 #' @param verbose Logical. Defaults to FALSE. Should lots of information about the API call be printed to the console? Great for debugging.
 #'
-#' @returns
+#' @returns A tibble of units and their geography
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' get_unit_geography("ROMO")
+#' get_unit_geography(c("ROMO", "YELL"))
+#' }
 get_unit_geography <- function(units,
                                detail = c("convexHull", "envelope", "feature"),
                                dataformat = c("wkt", "glm"),
