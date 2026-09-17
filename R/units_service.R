@@ -26,6 +26,29 @@ get_all_nps_units <- function(dev = FALSE, verbose = FALSE) {
   return(all_units)
 }
 
-get_unit_geography <- function(units, detail, dataformat, verbose = FALSE)
-{}
+get_unit_geography <- function(units,
+                               detail = c("convexHull", "envelope", "feature"),
+                               dataformat = c("wkt", "glm"),
+                               dev = FALSE,
+                               verbose = FALSE) {
+  detail <- match.arg(detail)
+  dataformat <- match.arg(dataformat)
+
+  unit_geo_url <- .get_base_units_url(is_dev = dev)
+  unit_geo <- httr2::request(unit_geo_url) |>
+    httr2::req_url_path_append(detail, dataformat) |>
+    httr2::req_headers(Accept = "application/json") |>
+    httr2::req_perform()
+
+  unit_geo <- httr2::resp_body_json(unit_geo)
+
+  unit_geo <- suppressWarnings(data.table::rbindlist(unit_geo,
+                                                     use.names = TRUE,
+                                                     fill = TRUE))
+  unit_geo <- tibble::as_tibble(unit_geo)
+
+  return(unit_geo)
+
+}
+
 
