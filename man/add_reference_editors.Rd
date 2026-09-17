@@ -2,7 +2,7 @@
 % Please edit documentation in R/set.R
 \name{add_reference_editors}
 \alias{add_reference_editors}
-\title{Add editrs to a DataStore reference}
+\title{Add editors to a DataStore reference}
 \usage{
 add_reference_editors(
   reference_id,
@@ -30,7 +30,7 @@ add_reference_editors(
 A tibble of all reference editors with columns userCode, lastName, firstName, and email
 }
 \description{
-Add editrs to a DataStore reference
+Add editors to a DataStore reference
 }
 \examples{
 \dontrun{
