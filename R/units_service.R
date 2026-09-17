@@ -33,10 +33,16 @@ get_unit_geography <- function(units,
                                verbose = FALSE) {
   detail <- match.arg(detail)
   dataformat <- match.arg(dataformat)
+  units <- toupper(units)
+
+  if (length(seq_along(units)) > 1) {
+    units <- paste(units, collapse = "; ")
+  }
 
   unit_geo_url <- .get_base_units_url(is_dev = dev)
   unit_geo <- httr2::request(unit_geo_url) |>
-    httr2::req_url_path_append(detail, dataformat) |>
+    httr2::req_url_path_append(units, "geography") |>
+    httr2::req_url_query(detail = detail, dataformat = dataformat) |>
     httr2::req_headers(Accept = "application/json") |>
     httr2::req_perform()
 
