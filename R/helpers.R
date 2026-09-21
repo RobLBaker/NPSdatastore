@@ -39,6 +39,18 @@ assign("ds_dev_reference_url",
        envir = .pkgglobalenv
 )
 
+# unit service URL
+assign("units_url",
+       "https://irmaservices.nps.gov/Unit/v2/api/",
+       envir = .pkgglobalenv
+)
+
+# unit service dev/testing URL
+assign("units_dev_url",
+       "https://irmadevservices.nps.gov/Unit/v2/api/",
+       envir = .pkgglobalenv
+)
+
 #this gets rid of the "no visible binding for global variable 'x'" error in build checks:
 globalVariables(c("public_refs",
                   "internal_refs",
@@ -89,6 +101,21 @@ globalVariables(c("public_refs",
   )
 
   return(datastore_url)
+}
+
+#' Get the right base URL for the Units API
+#'
+#' @param is_dev Retrieve the dev version of the units base API?
+#'
+#' @returns One of two base URL for Units API (production, dev)
+#' @keywords internal
+#'
+.get_base_units_url <- function(is_dev) {
+  units_url <- dplyr::case_when(
+    is_dev ~ get("units_dev_url", envir = .pkgglobalenv),
+    !is_dev ~ get("units_url", envir = .pkgglobalenv)
+  )
+  return(units_url)
 }
 
 #' Given a reference ID, construct the URL to its profile page

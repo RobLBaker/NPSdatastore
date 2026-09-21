@@ -19,6 +19,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_inactive_ref.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/delete_reference_editor.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-datastore_request.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_base_units_url.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_base_url.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_reference_profiles.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-get_ref_profile_url.html</loc></url>
@@ -28,6 +29,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-validate_resp.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/dot-validate_truefalse.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/example_ref_ids.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_all_nps_units.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_bibliography.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_by_for_nps.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_contact_types.html</loc></url>
@@ -40,6 +42,7 @@
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_park_units.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_editors.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_reference_types.html</loc></url>
+<url><loc>https://doi-nps.github.io/NPSdatastore/reference/get_unit_geography.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/index.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/internal_refs.html</loc></url>
 <url><loc>https://doi-nps.github.io/NPSdatastore/reference/pipe.html</loc></url>

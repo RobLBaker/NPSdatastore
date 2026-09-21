@@ -1,4 +1,7 @@
 # NPSdatastore (development version)
+## 2026-09-17
+  * add two new functions, `get_unit_geography` and `get_all_nps_units` that hit the Units API via a new helper function `.get_base_units_url`
+
 ## 2026-09-03
   * move all function for lookup lists to a separate lookup_lists.R file
   * add function `get_legal_authority` for retrieving a list of authorities to use when restricting file downloads on DataStore
