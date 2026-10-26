@@ -158,6 +158,8 @@ globalVariables(c("public_refs",
       httr2::req_options(request,
                          httpauth = 4L, userpwd = ":",
                          verbose = verbose,
+                         followlocation = FALSE,
+                         maxredirs = 0L,
                          http_version =
                            curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value) |>
 #                         fresh_connect = TRUE) |>
