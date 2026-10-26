@@ -156,7 +156,7 @@ globalVariables(c("public_refs",
   if (is_secure) {
     request <-
       httr2::req_options(request,
-                         httpauth = 4L, userpwd = ":::",
+                         httpauth = 4L, userpwd = ":",
                          verbose = verbose,
                          http_version =
                            curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value) |>
