@@ -149,13 +149,18 @@ globalVariables(c("public_refs",
   base_url <- .get_base_url(is_secure = is_secure, is_dev = is_dev)
 
   request <- httr2::request(base_url) |>
-    httr2::req_user_agent(paste0("NPSdatastore v", packageVersion("NPSdatastore"), " (https://github.com/DOI-NPS/NPSdatastore)"))
+    httr2::req_user_agent(paste0("NPSdatastore v",
+                                 packageVersion("NPSdatastore"),
+                                 " (https://github.com/DOI-NPS/NPSdatastore)"))
 
   if (is_secure) {
-    request <- httr2::req_options(request, httpauth = 4L, userpwd = ":::",
-                                  verbose = verbose,
-                                  http_version = curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value,
-                                  fresh_connect = TRUE) |>
+    request <-
+      httr2::req_options(request,
+                         httpauth = 4L, userpwd = ":::",
+                         verbose = verbose,
+                         http_version =
+                           curl::curl_symbols("CURL_HTTP_VERSION_1_1")$value) |>
+#                         fresh_connect = TRUE) |>
       httr2::req_retry(max_tries = 6, retry_on_failure = TRUE)
   }
 
